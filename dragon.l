@@ -20,27 +20,51 @@ void yyerror( char *s );
 
 %}
 
+ /* options */
 %option nounput noinput
 
  /* regular definitions */
 whitespace	[ \t\n]
-bcomment	\{(.*\n)*.*\}
-pscomment	\(\*(.*\n)*.*\*\)
+
+bcbegin		[{]
+bcbody		([^}]*\n*)*
+bcend		[}]
+
+pscbegin	\(\*
+pscbody		([^*]*\n*)*
+pscfend		\*[^*\)\n]*
+pscend		\*\)
+
 letter		[a-zA-Z]
 digit		[0-9]
 digits		{digit}{digit}*
 number		{digits}|({digits}.{digits})
 ident		{letter}({letter}|{digit})*
 
+relop		[=|<>|<|<=|>|>=]
+addop		[+|or|-]
+mulop		[*|/]|div|mod|and
+assignop	:=
+
+span		\.\.
+terminal	[(|)|;|.|,|:|\[|\]|+|-]
+
+ /* states */
+%x bcomment pscomment
+
 %%
 
-{whitespace}	{ /* ignore */ }
+{whitespace}			{ /* ignore */ }
 
-{bcomment}		{ /* comment: { ... } */ }
-{pscomment}		{ /* comment: (* ... *) */ }
+{bcbegin}				{ /* comment: { */ BEGIN( bcomment ); }
+<bcomment>{bcbody}		{ /* ... */ }
+<bcomment>{bcend}		{ /* } */ BEGIN( INITIAL ); }
 
-{ident}			{ /* more */ return _IDENT_; }
-{number}		{ /* more */ return _NUMBER_; }
+{pscbegin}				{ /* comment: (* */ BEGIN( pscomment ); }
+<pscomment>{pscbody}	{ /* ... */ }
+<pscomment>{pscfend}	{ /* * followed by not ) */ }
+<pscomment>{pscend}		{ /* *) */ BEGIN( INITIAL ); }
+
 "program"		{ return _PROGRAM_; }
 "begin"			{ return _BEGIN_; }
 "end"			{ return _END_; }
@@ -57,22 +81,18 @@ ident		{letter}({letter}|{digit})*
 "while"			{ return _WHILE_; }
 "do"			{ return _DO_; }
 "not"			{ return _NOT_; }
-"="				{ /* more */ return _RELOP_; }
-"<>"			{ /* more */ return _RELOP_; }
-"<"				{ /* more */ return _RELOP_; }
-"<="			{ /* more */ return _RELOP_; }
-">"				{ /* more */ return _RELOP_; }
-">="			{ /* more */ return _RELOP_; }
-"+"				{ /* more */ return _ADDOP_; }
-"-"				{ /* more */ return _ADDOP_; }
-"or"			{ /* more */ return _ADDOP_; }
-"*"				{ /* more */ return _MULOP_; }
-"/"				{ /* more */ return _MULOP_; }
-"div"			{ /* more */ return _MULOP_; }
-"mod"			{ /* more */ return _MULOP_; }
-"and"			{ /* more */ return _MULOP_; }
-":="			{ /* more? */ return _ASSIGNOP_; }
-.				{ yyerror( "lex: unrecognized input" ); }
+
+{relop}			{ return _RELOP_; }
+{addop}			{ return _ADDOP_; }
+{mulop}			{ return _MULOP_; }
+{assignop}		{ return _ASSIGNOP_; }
+
+{span}			{ return _SPAN_; }
+{terminal}		{ return yytext[ 0 ]; }
+{ident}			{ return _IDENT_; }
+{number}		{ return _NUMBER_; }
+
+.				{ yyerror( "unrecognized character" ); }
 
 %%
 

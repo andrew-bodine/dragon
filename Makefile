@@ -7,7 +7,7 @@ CC = gcc
 LEX = lex
 YACC = yacc
 YFLAGS = -v -d
-CFLAGS = -c -g -Wall
+CFLAGS = -c -d -g -Wall
 LFLAGS = -Wall -lfl
 
 all: $(OBJS)
@@ -23,7 +23,7 @@ lex.yy.o: lex.yy.c y.tab.h
 	$(CC) $(CFLAGS) lex.yy.c
 
 lex.yy.c: dragon.l
-	$(LEX) dragon.l
+	$(LEX) -d dragon.l
 
 clean:
 	rm -rf *.o lex.yy.c *.tab.* dragon *.output

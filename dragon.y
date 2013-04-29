@@ -64,6 +64,7 @@ void yyerror( char *s );
 						and : logical AND
 					*/
 %token _ASSIGNOP_	/* := */
+%token _SPAN_		/* .. : used in array instantiation, means span set of numbers */
 
 /* precedence */
 
@@ -79,6 +80,7 @@ program					: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'
 						  subprogram_declarations
 						  compound_statement
 						  '.'														{;}
+						| /* epsilon */												{;}
 						;
 
 identifier_list			: _IDENT_													{;}
@@ -90,7 +92,7 @@ declarations			: declarations _VAR_ identifier_list ':' type ';'			{;}
 						;
 
 type					: standard_type												{;}
-	   					| _ARRAY_ '[' _NUMBER_ ".." _NUMBER_ ']' _OF_ standard_type	{;}
+	   					| _ARRAY_ '[' _NUMBER_ _SPAN_ _NUMBER_ ']' _OF_ standard_type	{;}
 						;
 
 standard_type			: _INTEGER_													{;}
@@ -161,7 +163,7 @@ term					: factor													{;}
 		 				| term _MULOP_ factor										{;}
 						;
 
-factor					: _IDENT_													{;}
+factor					: variable													{;}
 		   				| _IDENT_ '(' expression_list ')'							{;}
 						| _NUMBER_													{;}
 						| '(' expression ')'										{;}
