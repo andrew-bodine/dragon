@@ -1,0 +1,17 @@
+{ here is the beginning }
+
+
+program main( input, output );
+	var a,b: integer;
+	var x,y: real;
+	var p: array[ 5 .. 13 ] of integer;
+	var q: array[ 1 .. 10 ] of real;
+
+begin
+	{read( a );
+	read( b );}
+	p[ p[ b ] ] := p[ p[ p[ b + a ] ] ]
+end.
+
+
+(* in the end there will be nothing left *)
