@@ -54,45 +54,45 @@ terminal	[(|)|;|.|,|:|\[|\]|+|-]
 
 %%
 
-{whitespace}			{ /* ignore */ }
+{whitespace}		{ /* ignore */ }
 
-{bcbegin}				{ /* comment: { */ BEGIN( bcomment ); }
-<bcomment>{bcbody}		{ /* ... */ }
-<bcomment>{bcend}		{ /* } */ BEGIN( INITIAL ); }
+{bcbegin}		{ /* comment: { */ BEGIN( bcomment ); }
+<bcomment>{bcbody}	{ /* ... */ }
+<bcomment>{bcend}	{ /* } */ BEGIN( INITIAL ); }
 
-{pscbegin}				{ /* comment: (* */ BEGIN( pscomment ); }
+{pscbegin}		{ /* comment: (* */ BEGIN( pscomment ); }
 <pscomment>{pscbody}	{ /* ... */ }
 <pscomment>{pscfend}	{ /* * followed by not ) */ }
-<pscomment>{pscend}		{ /* *) */ BEGIN( INITIAL ); }
+<pscomment>{pscend}	{ /* *) */ BEGIN( INITIAL ); }
 
 "program"		{ return _PROGRAM_; }
 "begin"			{ return _BEGIN_; }
 "end"			{ return _END_; }
-"var"			{ return _VAR_; }
-"array"			{ return _ARRAY_; }
-"of"			{ return _OF_; }
-"integer"		{ return _INTEGER_; }
-"real"			{ return _REAL_; }
 "function"		{ return _FUNCTION_; }
 "procedure"		{ return _PROCEDURE_; }
+"while"			{ return _WHILE_; }
+"do"			{ return _DO_; }
 "if"			{ return _IF_; }
 "then"			{ return _THEN_; }
 "else"			{ return _ELSE_; }
-"while"			{ return _WHILE_; }
-"do"			{ return _DO_; }
+"var"			{ return _VAR_; }
+"array"			{ return _ARRAY_; }
+{span}			{ return _SPAN_; }
+"of"			{ return _OF_; }
 "not"			{ return _NOT_; }
+"integer"		{ return _INTEGER_; }
+"real"			{ return _REAL_; }
 
 {relop}			{ return _RELOP_; }
 {addop}			{ return _ADDOP_; }
 {mulop}			{ return _MULOP_; }
 {assignop}		{ return _ASSIGNOP_; }
 
-{span}			{ return _SPAN_; }
 {terminal}		{ return yytext[ 0 ]; }
 {ident}			{ return _IDENT_; }
 {number}		{ return _NUMBER_; }
 
-.				{ yyerror( "unrecognized character" ); }
+.			{ yyerror( "unrecognized character" ); }
 
 %%
 

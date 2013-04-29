@@ -10,7 +10,7 @@ program main( input, output );
 begin
 	read( a );
 	read( b );
-	{a := - 1;}
+	a := 3 - 1;
 	p[ p[ b ] ] := p[ p[ p[ b + a ] ] ]
 end.
 
