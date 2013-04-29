@@ -2,7 +2,7 @@
 # Compilers - Dragon
 # module: make
 
-OBJS = lex.yy.o
+OBJS = y.tab.o lex.yy.o
 CC = gcc
 LEX = lex
 YACC = yacc
@@ -13,7 +13,13 @@ LFLAGS = -Wall -lfl
 all: $(OBJS)
 	$(CC) -o dragon $(OBJS) $(LFLAGS)
 
-lex.yy.o: lex.yy.c
+y.tab.o: y.tab.c y.tab.h
+	$(CC) $(CFLAGS) y.tab.c
+
+y.tab.c y.tab.h: dragon.y
+	$(YACC) $(YFLAGS) dragon.y
+
+lex.yy.o: lex.yy.c y.tab.h
 	$(CC) $(CFLAGS) lex.yy.c
 
 lex.yy.c: dragon.l
