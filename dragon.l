@@ -42,7 +42,7 @@ number		{digits}|({digits}.{digits})
 ident		{letter}({letter}|{digit})*
 
 relop		[=|<>|<|<=|>|>=]
-addop		[+|or|-]
+addop		[+|-]|or
 mulop		[*|/]|div|mod|and
 assignop	:=
 
