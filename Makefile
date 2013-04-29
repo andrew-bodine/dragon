@@ -5,13 +5,14 @@
 OBJS = y.tab.o lex.yy.o
 CC = gcc
 LEX = lex
+LEFLAGS = -d
 YACC = yacc
-YFLAGS = -v -d
-CFLAGS = -c -d -g -Wall
-LFLAGS = -Wall -lfl
+YFLAGS = -d
+CFLAGS = -c
+LIFLAGS = -lfl
 
 all: $(OBJS)
-	$(CC) -o dragon $(OBJS) $(LFLAGS)
+	$(CC) -o dragon $(OBJS) $(LIFLAGS)
 
 y.tab.o: y.tab.c y.tab.h
 	$(CC) $(CFLAGS) y.tab.c
@@ -23,7 +24,7 @@ lex.yy.o: lex.yy.c y.tab.h
 	$(CC) $(CFLAGS) lex.yy.c
 
 lex.yy.c: dragon.l
-	$(LEX) -d dragon.l
+	$(LEX) $(LEFLAGS) dragon.l
 
 clean:
 	rm -rf *.o lex.yy.c *.tab.* dragon *.output
