@@ -7,7 +7,7 @@ CC = gcc
 LEX = lex
 LEFLAGS = -d
 YACC = yacc
-YFLAGS = -d
+YFLAGS = -v -d
 CFLAGS = -c
 LIFLAGS = -lfl
 
