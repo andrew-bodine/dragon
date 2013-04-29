@@ -24,7 +24,7 @@ void yyerror( char *s );
 %option nounput noinput
 
  /* regular definitions */
-whitespace	[ \t\n]
+ws		[ \t\n]
 
 bcbegin		[{]
 bcbody		([^}]*\n*)*
@@ -41,20 +41,20 @@ digits		{digit}{digit}*
 number		{digits}|({digits}.{digits})
 ident		{letter}({letter}|{digit})*
 
-relop		[=|<>|<|<=|>|>=]
-addop		[+|-]|or
-mulop		[*|/]|div|mod|and
-assignop	:=
-
 span		\.\.
 terminal	[(|)|;|.|,|:|\[|\]|+|-]
+
+relop		[=|<>|<|<=|>|>=]
+addop		or
+mulop		[*|/]|div|mod|and
+assignop	:=
 
  /* states */
 %x bcomment pscomment
 
 %%
 
-{whitespace}		{ /* ignore */ }
+{ws}			{ /* ignore */ }
 
 {bcbegin}		{ /* comment: { */ BEGIN( bcomment ); }
 <bcomment>{bcbody}	{ /* ... */ }
@@ -65,23 +65,23 @@ terminal	[(|)|;|.|,|:|\[|\]|+|-]
 <pscomment>{pscfend}	{ /* * followed by not ) */ }
 <pscomment>{pscend}	{ /* *) */ BEGIN( INITIAL ); }
 
-"program"		{ return _PROGRAM_; }
-"begin"			{ return _BEGIN_; }
-"end"			{ return _END_; }
-"function"		{ return _FUNCTION_; }
-"procedure"		{ return _PROCEDURE_; }
-"while"			{ return _WHILE_; }
-"do"			{ return _DO_; }
-"if"			{ return _IF_; }
-"then"			{ return _THEN_; }
-"else"			{ return _ELSE_; }
-"var"			{ return _VAR_; }
-"array"			{ return _ARRAY_; }
+"program"{ws}		{ return _PROGRAM_; }
+"begin"{ws}		{ return _BEGIN_; }
+{ws}"end"		{ return _END_; }
+"function"{ws}		{ return _FUNCTION_; }
+"procedure"{ws}		{ return _PROCEDURE_; }
+"while"{ws}		{ return _WHILE_; }
+{ws}"do"		{ return _DO_; }
+"if"{ws}		{ return _IF_; }
+{ws}"then"		{ return _THEN_; }
+"else"{ws}		{ return _ELSE_; }
+"var"{ws}		{ return _VAR_; }
+{ws}"array"		{ return _ARRAY_; }
 {span}			{ return _SPAN_; }
-"of"			{ return _OF_; }
-"not"			{ return _NOT_; }
-"integer"		{ return _INTEGER_; }
-"real"			{ return _REAL_; }
+{ws}"of"		{ return _OF_; }
+{ws}"not"		{ return _NOT_; }
+{ws}"integer"{ws}*	{ return _INTEGER_; }
+{ws}"real"{ws}*		{ return _REAL_; }
 
 {relop}			{ return _RELOP_; }
 {addop}			{ return _ADDOP_; }

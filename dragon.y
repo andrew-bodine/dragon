@@ -161,6 +161,7 @@ expression		: simple_expression							{;}
 simple_expression	: term									{;}
 			| sign term								{;}
 			| simple_expression _ADDOP_ term					{;}
+			| simple_expression sign term						{;}
 			;
 
 term			: factor								{;}

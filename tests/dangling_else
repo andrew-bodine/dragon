@@ -1,0 +1,15 @@
+(* This is a Pascal program for Euclid's GCD algorithm *)
+program main( input, output );
+	var a, b, c: integer;
+	function gcd( a, b: integer ): integer;
+		var r: integer;
+	begin
+		if a < b then
+			gcd := gcd( b, a )
+	end;
+begin
+	read( a );
+	read( b );
+	c := gcd( a, b );
+	writeln( c )
+end.
