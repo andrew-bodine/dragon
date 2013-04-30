@@ -11,8 +11,13 @@
 /* includes */
 #include <stdio.h>
 #include <stdlib.h>
+#include "syn_tree.h"
+#include "sym_table.h"
 
 /* pointers */
+s_table *s_stack = NULL;
+t_entry *e_ptr = NULL;
+n_ptr t_ptr;
 
 /* prototypes */
 int yylex( void );
@@ -23,6 +28,11 @@ void yyerror( char *s );
 %}
 
 /* yylval union */
+%union {
+	int ival;
+	char *sval;
+	n_ptr tval;
+};
 
 /* tokens */
 %token _PROGRAM_ 	/* starts the main program */
@@ -63,17 +73,18 @@ void yyerror( char *s );
 				and : logical AND
 			*/
 %token _ASSIGNOP_	/* := */
-%token _IDENT_
-%token _NUMBER_		/* matches unsigned integers */
+%token <sval> _IDENT_
+%token <ival> _NUMBER_	/* matches unsigned integers */
 
 /* precedence */
 %nonassoc _IF_THEN_
 %nonassoc _ELSE_
 
 /* types */
+%type <tval> variable
 
 /* start */
-%start program
+%start factor // change
 
 %%
 
@@ -85,7 +96,13 @@ program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'
 			| /* epsilon */								{;}
 			;
 
-identifier_list		: _IDENT_								{;}
+identifier_list		: _IDENT_								{
+													// lookup in symbol table
+													// if found, pass pointer into constructor
+													// else, insert into symbol table then constructor
+													// $$ = tptr
+													;
+												}
 		  	| identifier_list ',' _IDENT_						{;}
 			;
 
@@ -142,11 +159,32 @@ statement		: variable _ASSIGNOP_ expression					{;}
 			| _WHILE_ expression _DO_ statement					{;}
 			;
 
-variable		: _IDENT_								{;}
+variable		: _IDENT_								{
+													/* temp */
+													s_stack = push_scope( s_stack );
+													/* end temp */
+													
+													e_ptr = find_entry( s_stack, $1 );
+													if( e_ptr == NULL )
+														e_ptr = insert_entry( s_stack, $1, unknown ); // change
+													t_ptr.ident = make_ident( e_ptr, NULL );
+													$$ = t_ptr;
+													
+													/* temp */
+													print_ident( t_ptr.ident );
+													s_stack = pop_scope( s_stack );
+													/* end temp */
+												}
 			| _IDENT_ '[' expression ']'						{;}
 			;
 
-procedure_statement	: _IDENT_								{;}
+procedure_statement	: _IDENT_								{
+													// lookup in symbol table
+													// if found, pass pointer into constructor
+													// else, insert into symbol table then constructor
+													// $$ = tptr
+													;
+												}
 			| _IDENT_ '(' expression_list ')'					{;}
 			;
 

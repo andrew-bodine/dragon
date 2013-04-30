@@ -10,7 +10,7 @@
 
 /* includes */
 #include <stdlib.h>
-#include <stdio.h>
+#include "syn_tree.h"
 #include "y.tab.h"
 
 /* prototypes */
@@ -89,8 +89,14 @@ assignop	:=
 {assignop}		{ return _ASSIGNOP_; }
 
 {terminal}		{ return yytext[ 0 ]; }
-{ident}			{ return _IDENT_; }
-{number}		{ return _NUMBER_; }
+{ident}			{
+				yylval.sval = strdup( yytext );
+				return _IDENT_;
+			}
+{number}		{
+				yylval.ival = atoi( yytext );
+				return _NUMBER_;
+			}
 
 .			{ yyerror( "unrecognized character" ); }
 
