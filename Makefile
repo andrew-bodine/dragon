@@ -2,7 +2,7 @@
 # Compilers - Dragon
 # module: make
 
-OBJS = y.tab.o lex.yy.o
+OBJS = sym_table.o y.tab.o lex.yy.o
 CC = gcc
 LEX = lex
 LEFLAGS = -d
@@ -13,6 +13,9 @@ LIFLAGS = -lfl
 
 all: $(OBJS)
 	$(CC) -o dragon $(OBJS) $(LIFLAGS)
+
+sym_table.o: sym_table.c sym_table.h
+	$(CC) $(CFLAGS) sym_table.c
 
 y.tab.o: y.tab.c y.tab.h
 	$(CC) $(CFLAGS) y.tab.c
