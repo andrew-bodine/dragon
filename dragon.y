@@ -81,24 +81,29 @@ void yyerror( char *s );
 %nonassoc _ELSE_
 
 /* types */
-%type <tval> program identifier_list procedure_statement variable
+%type <tval> program identifier_list declarations
 
 /* start */
 %start program
 
 %%
 
-program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'				{
-													/* insert program symbol in symbol table */
+program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'				
+			  declarations								{
+			  										/* insert program symbol in symbol table */
 													e_ptr = find_entry( s_stack, $2 );
 													if( e_ptr == NULL )
 														e_ptr = insert_entry( s_stack, $2, program );
-													t_ptr.ident = make_ident( e_ptr, NULL );
 													
 													/* initiate program tree construction */
-													t_ptr.program = make_program( t_ptr.ident, $4.ident );
+													t_ptr.program = make_program( make_ident( e_ptr, NULL ),
+																	$4.ident );
+													
+													/* add declarations */
+													t_ptr.program->p_declarations = $7.ident;
+													
+													// TODO
 												}
-	   		  declarations
 			  subprogram_declarations
 			  compound_statement
 			  '.'									{	
@@ -106,129 +111,116 @@ program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'				{
 													print_sstack( s_stack );
 													free_program( t_ptr.program );
 												}
-			| /* epsilon */								{;}
+			| /* epsilon */								{}
 			;
 
 identifier_list		: _IDENT_								{
 													e_ptr = find_entry( s_stack, $1 );
 													if( e_ptr == NULL )
-														e_ptr = insert_entry( s_stack, $1, unknown ); // change
-													t_ptr.ident = make_ident( e_ptr, NULL );
-													$$ = t_ptr;
+														e_ptr = insert_entry( s_stack, $1, unknown ); // change? 
+													$$.ident = make_ident( e_ptr, NULL );
 												}
 		  	| _IDENT_ ',' identifier_list						{
 													e_ptr = find_entry( s_stack, $1 );
 													if( e_ptr == NULL )
-														e_ptr = insert_entry( s_stack, $1, unknown ); // change
-													t_ptr.ident = make_ident( e_ptr, $3.ident );
-													$$ = t_ptr;
+														e_ptr = insert_entry( s_stack, $1, unknown ); // change? 
+													$$.ident = make_ident( e_ptr, $3.ident );
 												}
 			;
 
-declarations		: _VAR_ identifier_list ':' type ';' declarations			{;}
-	       		| /* epsilon */								{;}
+declarations		: _VAR_ identifier_list ':' type ';' declarations			{
+													/* */
+													$$.ident = NULL;
+												}
+	       		| /* epsilon */								{	
+	       												$$.ident = NULL;
+	       											}
 			;
 
-type			: standard_type								{;}
-	   		| _ARRAY_ '[' _NUMBER_ _SPAN_ _NUMBER_ ']' _OF_ standard_type		{;}
+type			: standard_type								{}
+	   		| _ARRAY_ '[' _NUMBER_ _SPAN_ _NUMBER_ ']' _OF_ standard_type		{}
 			;
 
-standard_type		: _INTEGER_								{;}
-			| _REAL_								{;}
+standard_type		: _INTEGER_								{}
+			| _REAL_								{}
 			;
 
-subprogram_declarations	: subprogram_declarations subprogram_declaration ';'			{;}
-			| /* epsilon */								{;}
+subprogram_declarations	: subprogram_declarations subprogram_declaration ';'			{}
+			| /* epsilon */								{}
 			;
 
 subprogram_declaration	: subprogram_head
 			  declarations
 			  subprogram_declarations
-			  compound_statement							{;}
+			  compound_statement							{}
 			;
 
-subprogram_head		: _FUNCTION_ _IDENT_ arguments ':' standard_type ';'			{;}
-			| _PROCEDURE_ _IDENT_ arguments ';'					{;}
+subprogram_head		: _FUNCTION_ _IDENT_ arguments ':' standard_type ';'			{}
+			| _PROCEDURE_ _IDENT_ arguments ';'					{}
 			;
 
-arguments		: '(' parameter_list ')'						{;}
-			| /* epsilon */								{;}
+arguments		: '(' parameter_list ')'						{}
+			| /* epsilon */								{}
 			;
 
-parameter_list		: identifier_list ':' type						{;}
-			| parameter_list ';' identifier_list ':' type				{;}
+parameter_list		: identifier_list ':' type						{}
+			| parameter_list ';' identifier_list ':' type				{}
 			;
 
-compound_statement	: _BEGIN_ optional_statements _END_					{;}
+compound_statement	: _BEGIN_ optional_statements _END_					{}
 			;
 
-optional_statements	: statement_list							{;}
-			| /* epsilon */								{;}
+optional_statements	: statement_list							{}
+			| /* epsilon */								{}
 			;
 
-statement_list		: statement								{;}
-			| statement_list ';' statement						{;}
+statement_list		: statement								{}
+			| statement_list ';' statement						{}
 			;
 
-statement		: variable _ASSIGNOP_ expression					{;}
-			| procedure_statement							{;}
-			| compound_statement							{;}
-			| _IF_ expression _THEN_ statement %prec _IF_THEN_			{;}
-			| _IF_ expression _THEN_ statement _ELSE_ statement			{;}
-			| _WHILE_ expression _DO_ statement					{;}
+statement		: variable _ASSIGNOP_ expression					{}
+			| procedure_statement							{}
+			| compound_statement							{}
+			| _IF_ expression _THEN_ statement %prec _IF_THEN_			{}
+			| _IF_ expression _THEN_ statement _ELSE_ statement			{}
+			| _WHILE_ expression _DO_ statement					{}
 			;
 
-variable		: _IDENT_								{
-	  												/*
-													e_ptr = find_entry( s_stack, $1 );
-													if( e_ptr == NULL )
-														e_ptr = insert_entry( s_stack, $1, unknown ); // change
-													t_ptr.ident = make_ident( e_ptr, NULL );
-													$$ = t_ptr;
-													*/
-												}
-			| _IDENT_ '[' expression ']'						{;}
+variable		: _IDENT_								{}
+			| _IDENT_ '[' expression ']'						{}
 			;
 
-procedure_statement	: _IDENT_								{
-													/*
-													e_ptr = find_entry( s_stack, $1 );
-													if( e_ptr == NULL )
-														e_ptr = insert_entry( s_stack, $1, unknown ); // change
-													t_ptr.ident = make_ident( e_ptr, NULL );
-													$$ = t_ptr;
-													*/
-												}
-			| _IDENT_ '(' expression_list ')'					{;}
+procedure_statement	: _IDENT_								{}
+			| _IDENT_ '(' expression_list ')'					{}
 			;
 
-expression_list		: expression								{;}
-			| expression_list ',' expression					{;}
+expression_list		: expression								{}
+			| expression_list ',' expression					{}
 			;
 
-expression		: simple_expression							{;}
-			| simple_expression _RELOP_ simple_expression				{;}
+expression		: simple_expression							{}
+			| simple_expression _RELOP_ simple_expression				{}
 			;
 
-simple_expression	: term									{;}
-			| sign term								{;}
-			| simple_expression _ADDOP_ term					{;}
-			| simple_expression sign term						{;}
+simple_expression	: term									{}
+			| sign term								{}
+			| simple_expression _ADDOP_ term					{}
+			| simple_expression sign term						{}
 			;
 
-term			: factor								{;}
-		 	| term _MULOP_ factor							{;}
+term			: factor								{}
+		 	| term _MULOP_ factor							{}
 			;
 
-factor			: variable								{;}
-		   	| _IDENT_ '(' expression_list ')'					{;}
-			| _NUMBER_								{;}
-			| '(' expression ')'							{;}
-			| _NOT_ factor								{;}
+factor			: variable								{}
+		   	| _IDENT_ '(' expression_list ')'					{}
+			| _NUMBER_								{}
+			| '(' expression ')'							{}
+			| _NOT_ factor								{}
 			;
 
-sign			: '+'									{;}
-		 	| '-'									{;}
+sign			: '+'									{}
+		 	| '-'									{}
 			;
 
 %%

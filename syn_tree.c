@@ -17,7 +17,7 @@ program_n *make_program( ident_n *p_name, ident_n *i_list ) {
 	/* set program info */
 	ptr->p_name = p_name;
 	ptr->p_ilist = i_list;
-	ptr->p_declarations = NULL;
+	//ptr->p_declarations = NULL;
 	// TODO	
 
 	return ptr;

@@ -2,7 +2,7 @@
 
 
 program tree( input, output );
-	{var a,b: integer;}
+	var a,b: integer;
 begin
 end.
 
