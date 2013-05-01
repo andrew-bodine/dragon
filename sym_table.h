@@ -49,7 +49,8 @@ typedef struct s_table {			/* scope */
 
 /* prototypes */
 int hash_pjw( const void *t_key, int t_size );
-t_entry *insert_entry( s_table *s_stack, char *e_symbol, r_type e_rtype );
+t_entry *insert_entry( s_table *s_stack, char *e_symbol );
+void install_record( t_entry *ptr, r_type e_rtype );
 t_entry *find_entry( s_table *s_stack, char *e_symbol );
 void free_entry( t_entry *ptr );
 s_table *push_scope( s_table *s_stack );

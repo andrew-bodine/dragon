@@ -22,7 +22,7 @@ int hash_pjw( const void *t_key, int t_size ) {
 	}
 	return val % t_size;
 }
-t_entry *insert_entry( s_table *s_stack, char *e_symbol, r_type e_rtype ) {
+t_entry *insert_entry( s_table *s_stack, char *e_symbol ) {
 	t_entry *ptr;
 	int index;
 
@@ -36,11 +36,25 @@ t_entry *insert_entry( s_table *s_stack, char *e_symbol, r_type e_rtype ) {
 	/* set entry info */
 	ptr->e_symbol = strdup( e_symbol );
 	free( e_symbol );
-	ptr->e_rtype = e_rtype;
+	ptr->e_rtype = unknown;
 	ptr->n_entry = NULL;
 
-	/* allocate/assert/set entry record info */
+	/* insert */
+	index = hash_pjw( ptr->e_symbol, TABLE_SIZE );
+	if( s_stack->s_entries[ index ] == NULL )
+		s_stack->s_entries[ index ] = ptr;
+	else {
+		ptr->n_entry = s_stack->s_entries[ index ];
+		s_stack->s_entries[ index ] = ptr;
+	}
+
+	return ptr;
+}
+void install_record( t_entry *ptr, r_type e_rtype ) {
+	ptr->e_rtype = e_rtype;
 	switch( e_rtype ) {
+		case program:
+			break;
 		case integer:
 			ptr->e_record.i_info = ( i_rinfo * )malloc( sizeof( i_rinfo ) );
 			assert( ptr->e_record.i_info != NULL );
@@ -60,17 +74,6 @@ t_entry *insert_entry( s_table *s_stack, char *e_symbol, r_type e_rtype ) {
 		default:
 			break;
 	}
-
-	/* insert */
-	index = hash_pjw( ptr->e_symbol, TABLE_SIZE );
-	if( s_stack->s_entries[ index ] == NULL )
-		s_stack->s_entries[ index ] = ptr;
-	else {
-		ptr->n_entry = s_stack->s_entries[ index ];
-		s_stack->s_entries[ index ] = ptr;
-	}
-
-	return ptr;
 }
 t_entry *find_entry( s_table *s_stack, char *e_symbol ) {
 	t_entry *ptr;
@@ -183,7 +186,21 @@ void print_sstack( s_table *s_stack ) {
 			if( s_stack->s_entries[ i ] != NULL ) {
 				ptr = s_stack->s_entries[ i ];
 				while( ptr != NULL ) {
-					fprintf( stderr, "[%s]->", ptr->e_symbol );
+					fprintf( stderr, "[%s|%s", ptr->e_symbol, type_to_str( ptr ) );
+					switch( ptr->e_rtype ) {
+						case integer:
+							fprintf( stderr, "|%d]->", ptr->e_record.i_info->e_init );
+							break;
+						case real:
+							fprintf( stderr, "|%d]->", ptr->e_record.r_info->e_init );
+							break;
+						//TODO
+						//case array:
+						//	fprintf( stderr, "|%d]->", );
+						//	break;
+						default:
+							fprintf( stderr, "]->" );
+					}
 					ptr = ptr->n_entry;
 				}
 				fprintf( stderr, "\n" );

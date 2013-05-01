@@ -82,6 +82,7 @@ void yyerror( char *s );
 
 /* types */
 %type <tval> program identifier_list declarations
+%type <ival> type standard_type
 
 /* start */
 %start program
@@ -92,8 +93,10 @@ program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'
 			  declarations								{
 			  										/* insert program symbol in symbol table */
 													e_ptr = find_entry( s_stack, $2 );
-													if( e_ptr == NULL )
-														e_ptr = insert_entry( s_stack, $2, program );
+													if( e_ptr == NULL ) {
+														e_ptr = insert_entry( s_stack, $2 );
+														install_record( e_ptr, program );
+													}
 													
 													/* initiate program tree construction */
 													t_ptr.program = make_program( make_ident( e_ptr, NULL ),
@@ -117,32 +120,48 @@ program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'
 identifier_list		: _IDENT_								{
 													e_ptr = find_entry( s_stack, $1 );
 													if( e_ptr == NULL )
-														e_ptr = insert_entry( s_stack, $1, unknown ); // change? 
+														e_ptr = insert_entry( s_stack, $1 );
 													$$.ident = make_ident( e_ptr, NULL );
 												}
 		  	| _IDENT_ ',' identifier_list						{
 													e_ptr = find_entry( s_stack, $1 );
 													if( e_ptr == NULL )
-														e_ptr = insert_entry( s_stack, $1, unknown ); // change? 
+														e_ptr = insert_entry( s_stack, $1 );
 													$$.ident = make_ident( e_ptr, $3.ident );
 												}
 			;
 
 declarations		: _VAR_ identifier_list ':' type ';' declarations			{
-													/* */
-													$$.ident = NULL;
+													$$.ident = $2.ident;
+													t_ptr.ident = $$.ident;
+													while( 1 ) {
+														switch( $4 ) {
+															case _INTEGER_:
+																install_record( t_ptr.ident->e_ptr, integer );
+																break;
+															case _REAL_:
+																install_record( t_ptr.ident->e_ptr, real );
+																break;
+															// TODO: array
+															default:
+																fprintf( stderr, "type not supported\n" );
+														}
+														if( t_ptr.ident->n_ident != NULL )
+															t_ptr.ident = t_ptr.ident->n_ident;
+														else
+															break;
+													}
+													t_ptr.ident->n_ident = $6.ident;
 												}
-	       		| /* epsilon */								{	
-	       												$$.ident = NULL;
-	       											}
+	       		| /* epsilon */								{	$$.ident = NULL; }
 			;
 
-type			: standard_type								{}
+type			: standard_type								{	$$ = $1; }
 	   		| _ARRAY_ '[' _NUMBER_ _SPAN_ _NUMBER_ ']' _OF_ standard_type		{}
 			;
 
-standard_type		: _INTEGER_								{}
-			| _REAL_								{}
+standard_type		: _INTEGER_								{	$$ = _INTEGER_; }
+			| _REAL_								{	$$ = _REAL_; }
 			;
 
 subprogram_declarations	: subprogram_declarations subprogram_declaration ';'			{}

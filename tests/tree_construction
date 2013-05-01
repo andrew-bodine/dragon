@@ -3,6 +3,7 @@
 
 program tree( input, output );
 	var a,b: integer;
+	var c,d: real;
 begin
 end.
 

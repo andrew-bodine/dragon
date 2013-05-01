@@ -66,13 +66,14 @@ void print_program( program_n *ptr ) {
 	fprintf( stderr, "\tDECS: " );
 	if( ptr->p_declarations == NULL )
 		fprintf( stderr, "NONE\n" );
-	// TODO
+	else
+		print_ident( ptr->p_declarations );
 
 	fprintf( stderr, "\n" );
 }
 void print_ident( ident_n *ptr ) {
 	while( ptr != NULL ) {
-		fprintf( stderr, "[%s|%s]->", ptr->e_ptr->e_symbol, type_to_str( ptr->e_ptr ) );
+		fprintf( stderr, "[%s]->", ptr->e_ptr->e_symbol );
 		ptr = ptr->n_ident;
 	}
 	fprintf( stderr, "\n" );
