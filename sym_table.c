@@ -153,6 +153,26 @@ s_table *pop_scope( s_table *s_stack ) {
 		return ptr;
 	}
 }
+char *type_to_str( t_entry *ptr ) {
+	switch( ptr->e_rtype ) {
+		case unknown:
+			return "UNKN";
+		case program:
+			return "PROG";
+		case integer:
+			return "INT";
+		case real:
+			return "REAL";
+		case array:
+			return "ARRAY";
+		case function:
+			return "FUNC";
+		case procedure:
+			return "PROC";
+		default:
+			return "";
+	}
+}
 void print_sstack( s_table *s_stack ) {
 	t_entry *ptr;
 	int i;

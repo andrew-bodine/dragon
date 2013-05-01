@@ -25,9 +25,11 @@ typedef enum {					/* symbol table entry record type */
 /* structs */
 typedef struct i_rinfo {			/* integer record info */
 	int e_init;				// entry initialized state ( 0: false, 1: true )
+	// TODO
 } i_rinfo;
 typedef struct r_rinfo {			/* real record info */
 	int e_init;				// entry initialized state ( 0: false, 1: true )
+	// TODO
 } r_rinfo;
 // TODO
 typedef struct t_entry {			/* symbol table entry */
@@ -52,6 +54,7 @@ t_entry *find_entry( s_table *s_stack, char *e_symbol );
 void free_entry( t_entry *ptr );
 s_table *push_scope( s_table *s_stack );
 s_table *pop_scope( s_table *s_stack );
+char *type_to_str( t_entry *ptr );
 void print_sstack( s_table *s_stack );
 
 #endif /* sym_table.h */

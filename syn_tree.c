@@ -72,7 +72,7 @@ void print_program( program_n *ptr ) {
 }
 void print_ident( ident_n *ptr ) {
 	while( ptr != NULL ) {
-		fprintf( stderr, "[%s]->", ptr->e_ptr->e_symbol );
+		fprintf( stderr, "[%s|%s]->", ptr->e_ptr->e_symbol, type_to_str( ptr->e_ptr ) );
 		ptr = ptr->n_ident;
 	}
 	fprintf( stderr, "\n" );
