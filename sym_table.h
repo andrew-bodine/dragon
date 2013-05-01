@@ -8,6 +8,7 @@
 
 /* includes */
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 #include <string.h>
 
@@ -16,7 +17,8 @@
 
 /* enums */
 typedef enum {					/* symbol table entry record type */
-	unknown, integer, real, 
+	unknown,
+	program, integer, real, 
 	array, function, procedure
 } r_type;					
 
@@ -27,12 +29,14 @@ typedef struct i_rinfo {			/* integer record info */
 typedef struct r_rinfo {			/* real record info */
 	int e_init;				// entry initialized state ( 0: false, 1: true )
 } r_rinfo;
+// TODO
 typedef struct t_entry {			/* symbol table entry */
 	char *e_symbol;				// entry name
 	r_type e_rtype;				// entry info record type
 	union {
 		i_rinfo *i_info;
 		r_rinfo *r_info;
+		// TODO
 	} e_record;				// entry specific information
 	struct t_entry *n_entry;		// neighbor entry ( collisions )
 } t_entry;
@@ -48,5 +52,6 @@ t_entry *find_entry( s_table *s_stack, char *e_symbol );
 void free_entry( t_entry *ptr );
 s_table *push_scope( s_table *s_stack );
 s_table *pop_scope( s_table *s_stack );
+void print_sstack( s_table *s_stack );
 
 #endif /* sym_table.h */

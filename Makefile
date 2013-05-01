@@ -8,7 +8,7 @@ LEX = lex
 LEFLAGS = #-d
 YACC = yacc
 YFLAGS = -v -d
-CFLAGS = -c
+CFLAGS = -c -g
 LIFLAGS = -lfl
 
 all: $(OBJS)

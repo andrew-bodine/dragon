@@ -35,6 +35,7 @@ t_entry *insert_entry( s_table *s_stack, char *e_symbol, r_type e_rtype ) {
 
 	/* set entry info */
 	ptr->e_symbol = strdup( e_symbol );
+	free( e_symbol );
 	ptr->e_rtype = e_rtype;
 	ptr->n_entry = NULL;
 
@@ -61,7 +62,7 @@ t_entry *insert_entry( s_table *s_stack, char *e_symbol, r_type e_rtype ) {
 	}
 
 	/* insert */
-	index = hash_pjw( e_symbol, TABLE_SIZE );
+	index = hash_pjw( ptr->e_symbol, TABLE_SIZE );
 	if( s_stack->s_entries[ index ] == NULL )
 		s_stack->s_entries[ index ] = ptr;
 	else {
@@ -150,5 +151,24 @@ s_table *pop_scope( s_table *s_stack ) {
 		free( s_stack );
 
 		return ptr;
+	}
+}
+void print_sstack( s_table *s_stack ) {
+	t_entry *ptr;
+	int i;
+
+	if( s_stack == NULL ) return;
+	else {
+		for( i = 0; i < TABLE_SIZE; i++ ) {
+			if( s_stack->s_entries[ i ] != NULL ) {
+				ptr = s_stack->s_entries[ i ];
+				while( ptr != NULL ) {
+					fprintf( stderr, "[%s]->", ptr->e_symbol );
+					ptr = ptr->n_entry;
+				}
+				fprintf( stderr, "\n" );
+			}
+		}
+		fprintf( stderr, "----------\n" );
 	}
 }

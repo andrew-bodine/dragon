@@ -29,9 +29,9 @@ void yyerror( char *s );
 
 /* yylval union */
 %union {
-	int ival;
-	char *sval;
-	n_ptr tval;
+	int ival;	/* number */
+	char *sval;	/* ident */
+	n_ptr tval;	/* syntax tree node */
 };
 
 /* tokens */
@@ -81,32 +81,51 @@ void yyerror( char *s );
 %nonassoc _ELSE_
 
 /* types */
-%type <tval> variable
+%type <tval> program identifier_list procedure_statement variable
 
 /* start */
-%start factor // change
+%start program
 
 %%
 
-program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'
+program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'				{
+													/* insert program symbol in symbol table */
+													e_ptr = find_entry( s_stack, $2 );
+													if( e_ptr == NULL )
+														e_ptr = insert_entry( s_stack, $2, program );
+													t_ptr.ident = make_ident( e_ptr, NULL );
+													
+													/* initiate program tree construction */
+													t_ptr.program = make_program( t_ptr.ident, $4.ident );
+												}
 	   		  declarations
 			  subprogram_declarations
 			  compound_statement
-			  '.'									{;}
+			  '.'									{	
+													print_program( t_ptr.program );
+													print_sstack( s_stack );
+													free_program( t_ptr.program );
+												}
 			| /* epsilon */								{;}
 			;
 
 identifier_list		: _IDENT_								{
-													// lookup in symbol table
-													// if found, pass pointer into constructor
-													// else, insert into symbol table then constructor
-													// $$ = tptr
-													;
+													e_ptr = find_entry( s_stack, $1 );
+													if( e_ptr == NULL )
+														e_ptr = insert_entry( s_stack, $1, unknown ); // change
+													t_ptr.ident = make_ident( e_ptr, NULL );
+													$$ = t_ptr;
 												}
-		  	| identifier_list ',' _IDENT_						{;}
+		  	| _IDENT_ ',' identifier_list						{
+													e_ptr = find_entry( s_stack, $1 );
+													if( e_ptr == NULL )
+														e_ptr = insert_entry( s_stack, $1, unknown ); // change
+													t_ptr.ident = make_ident( e_ptr, $3.ident );
+													$$ = t_ptr;
+												}
 			;
 
-declarations		: declarations _VAR_ identifier_list ':' type ';'			{;}
+declarations		: _VAR_ identifier_list ':' type ';' declarations			{;}
 	       		| /* epsilon */								{;}
 			;
 
@@ -160,30 +179,25 @@ statement		: variable _ASSIGNOP_ expression					{;}
 			;
 
 variable		: _IDENT_								{
-													/* temp */
-													s_stack = push_scope( s_stack );
-													/* end temp */
-													
+	  												/*
 													e_ptr = find_entry( s_stack, $1 );
 													if( e_ptr == NULL )
 														e_ptr = insert_entry( s_stack, $1, unknown ); // change
 													t_ptr.ident = make_ident( e_ptr, NULL );
 													$$ = t_ptr;
-													
-													/* temp */
-													print_ident( t_ptr.ident );
-													s_stack = pop_scope( s_stack );
-													/* end temp */
+													*/
 												}
 			| _IDENT_ '[' expression ']'						{;}
 			;
 
 procedure_statement	: _IDENT_								{
-													// lookup in symbol table
-													// if found, pass pointer into constructor
-													// else, insert into symbol table then constructor
-													// $$ = tptr
-													;
+													/*
+													e_ptr = find_entry( s_stack, $1 );
+													if( e_ptr == NULL )
+														e_ptr = insert_entry( s_stack, $1, unknown ); // change
+													t_ptr.ident = make_ident( e_ptr, NULL );
+													$$ = t_ptr;
+													*/
 												}
 			| _IDENT_ '(' expression_list ')'					{;}
 			;
@@ -223,7 +237,9 @@ void yyerror( char *s ) {
 	fprintf( stderr, "%s\n", s );
 }
 int main( void ) {
+	s_stack = push_scope( s_stack );
 	yyparse( );
+	s_stack = pop_scope( s_stack );
 	return 0;
 }
 

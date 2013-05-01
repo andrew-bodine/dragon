@@ -65,23 +65,23 @@ assignop	:=
 <pscomment>{pscfend}	{ /* * followed by not ) */ }
 <pscomment>{pscend}	{ /* *) */ BEGIN( INITIAL ); }
 
-"program"{ws}		{ return _PROGRAM_; }
-"begin"{ws}		{ return _BEGIN_; }
-{ws}"end"		{ return _END_; }
-"function"{ws}		{ return _FUNCTION_; }
-"procedure"{ws}		{ return _PROCEDURE_; }
-"while"{ws}		{ return _WHILE_; }
-{ws}"do"		{ return _DO_; }
-"if"{ws}		{ return _IF_; }
-{ws}"then"		{ return _THEN_; }
-"else"{ws}		{ return _ELSE_; }
-"var"{ws}		{ return _VAR_; }
-{ws}"array"		{ return _ARRAY_; }
+"program"		{ return _PROGRAM_; }
+"begin"			{ return _BEGIN_; }
+"end"			{ return _END_; }
+"function"		{ return _FUNCTION_; }
+"procedure"		{ return _PROCEDURE_; }
+"while"			{ return _WHILE_; }
+"do"			{ return _DO_; }
+"if"			{ return _IF_; }
+"then"			{ return _THEN_; }
+"else"			{ return _ELSE_; }
+"var"			{ return _VAR_; }
+"array"			{ return _ARRAY_; }
 {span}			{ return _SPAN_; }
-{ws}"of"		{ return _OF_; }
-{ws}"not"		{ return _NOT_; }
-{ws}"integer"{ws}*	{ return _INTEGER_; }
-{ws}"real"{ws}*		{ return _REAL_; }
+"of"			{ return _OF_; }
+"not"			{ return _NOT_; }
+"integer"		{ return _INTEGER_; }
+"real"			{ return _REAL_; }
 
 {relop}			{ return _RELOP_; }
 {addop}			{ return _ADDOP_; }
