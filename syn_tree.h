@@ -20,7 +20,7 @@ typedef struct ident_n {		/* tree node: ident */
 typedef struct program_n {		/* tree node: program */
 	ident_n *p_name;		// program name
 	ident_n *p_ilist;		// input arguments
-	//ident_n *p_declarations;	// declarations
+	ident_n *p_declarations;	// declarations
 	// TODO
 } program_n;
 
