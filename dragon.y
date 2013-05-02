@@ -32,6 +32,7 @@ void yyerror( char *s );
 	int ival;	/* number */
 	char *sval;	/* ident */
 	n_ptr tval;	/* syntax tree node */
+	r_ptr *record;	/* symbol table entry record */
 };
 
 /* tokens */
@@ -82,7 +83,7 @@ void yyerror( char *s );
 
 /* types */
 %type <tval> program identifier_list declarations
-%type <ival> type standard_type
+%type <record> type standard_type
 
 /* start */
 %start program
@@ -95,7 +96,7 @@ program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'
 													e_ptr = find_entry( s_stack, $2 );
 													if( e_ptr == NULL ) {
 														e_ptr = insert_entry( s_stack, $2 );
-														install_record( e_ptr, program );
+														install_program_record( e_ptr );
 													}
 													
 													/* initiate program tree construction */
@@ -110,8 +111,8 @@ program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'
 			  subprogram_declarations
 			  compound_statement
 			  '.'									{	
-													print_program( t_ptr.program );
-													print_sstack( s_stack );
+													//print_program( t_ptr.program );
+													//print_sstack( s_stack );
 													free_program( t_ptr.program );
 												}
 			| /* epsilon */								{}
@@ -132,36 +133,55 @@ identifier_list		: _IDENT_								{
 			;
 
 declarations		: _VAR_ identifier_list ':' type ';' declarations			{
-													$$.ident = $2.ident;
-													t_ptr.ident = $$.ident;
-													while( 1 ) {
-														switch( $4 ) {
-															case _INTEGER_:
-																install_record( t_ptr.ident->e_ptr, integer );
-																break;
-															case _REAL_:
-																install_record( t_ptr.ident->e_ptr, real );
-																break;
-															// TODO: array
-															default:
-																fprintf( stderr, "type not supported\n" );
-														}
-														if( t_ptr.ident->n_ident != NULL )
-															t_ptr.ident = t_ptr.ident->n_ident;
-														else
-															break;
-													}
-													t_ptr.ident->n_ident = $6.ident;
+/*													$$.ident = $2.ident;*/
+/*													t_ptr.ident = $$.ident;*/
+/*													*/
+/*													//*/
+/*													r_ptr *temp = $4;*/
+/*													*/
+/*													while( 1 ) {*/
+/*														switch( temp->e_rtype ) {*/
+/*															case integer:*/
+/*																install_integer_record( t_ptr.ident->e_ptr, temp->record.i_info );*/
+/*																break;*/
+/*															case real:*/
+/*																install_real_record( t_ptr.ident->e_ptr, temp->record.r_info );*/
+/*																break;*/
+/*															case array:*/
+/*																fprintf( stderr, "we has array :)\n" );*/
+/*																//install_array_record( t_ptr.ident->e_ptr, $4->record.a_info );*/
+/*																break;*/
+/*															default:*/
+/*																fprintf( stderr, "type not supported\n" );*/
+/*														}*/
+/*														*/
+/*														if( t_ptr.ident->n_ident != NULL )*/
+/*															t_ptr.ident = t_ptr.ident->n_ident;*/
+/*														else*/
+/*															break;*/
+/*													}*/
+/*													t_ptr.ident->n_ident = $6.ident;*/
 												}
-	       		| /* epsilon */								{	$$.ident = NULL; }
+	       		| /* epsilon */								{	/*$$.ident = NULL;*/ }
 			;
 
-type			: standard_type								{	$$ = $1; }
-	   		| _ARRAY_ '[' _NUMBER_ _SPAN_ _NUMBER_ ']' _OF_ standard_type		{}
+type			: standard_type								{	/*$$ = $1;*/ }
+	   		| _ARRAY_ '[' _NUMBER_ _SPAN_ _NUMBER_ ']' _OF_ standard_type		{
+/*	   												$$->e_rtype = array;*/
+/*	   												$$->record.a_info = make_array_record( $8, $3, $5 );*/
+	   											}
 			;
 
-standard_type		: _INTEGER_								{	$$ = _INTEGER_; }
-			| _REAL_								{	$$ = _REAL_; }
+standard_type		: _INTEGER_								{	
+/*													fprintf( stderr, "here :)" );*/
+/*													//$$ = ( r_ptr * )malloc( sizeof( r_ptr ) );*/
+/*													$$->e_rtype = integer; */
+/*													$$->record.i_info = make_integer_record( );*/
+												}
+			| _REAL_								{	
+/*													$$->e_rtype = real;*/
+/*													$$->record.r_info = make_real_record( );*/
+												}
 			;
 
 subprogram_declarations	: subprogram_declarations subprogram_declaration ';'			{}

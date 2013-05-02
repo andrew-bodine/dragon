@@ -3,24 +3,122 @@
  * module: symbol table
  */
 
+
 /* includes */
 #include "sym_table.h"
 
-/* definitions */
-int hash_pjw( const void *t_key, int t_size ) {
-	const char *ptr = t_key;
-	int val = 0;
 
-	while( *ptr != '\0' ) {
-		int tmp;
-		val = ( ( val << 4 ) + ( *ptr ) );
-		if( ( tmp = ( val & 0xf0000000 ) ) ) {
-			val = val ^ ( tmp >> 24 );
-			val = val ^ tmp;
-		}
-		ptr++;
+/* definitions */
+r_ptr *make_integer_record( ) {
+	r_ptr *ptr;
+	
+	ptr = ( r_ptr * )malloc( sizeof( r_ptr ) );
+	assert( ptr != NULL );
+	ptr->e_rtype = integer;
+	
+	ptr->record.i_info = ( i_rinfo * )malloc( sizeof( i_rinfo ) );
+	assert( ptr->record.i_info != NULL );
+	ptr->record.i_info->e_init = 0;
+	ptr->record.i_info->e_value = 0;
+	
+	return ptr;
+}
+r_ptr *make_real_record( ) {
+	r_ptr *ptr;
+	
+	ptr = ( r_ptr * )malloc( sizeof( r_ptr ) );
+	assert( ptr != NULL );
+	ptr->e_rtype = real;
+	
+	ptr->record.r_info = ( r_rinfo * )malloc( sizeof( r_rinfo ) );
+	assert( ptr->record.r_info != NULL );
+	ptr->record.r_info->e_init = 0;
+	ptr->record.r_info->e_value = ( float )0;
+	
+	return ptr;
+}
+r_ptr *make_array_record( r_ptr *temp, int a_start, int a_stop ) {
+	r_ptr *ptr;
+	int i;
+
+	ptr = ( r_ptr * )malloc( sizeof( r_ptr ) );
+	assert( ptr != NULL );
+	ptr->e_rtype = array;
+	
+	ptr->record.a_info = ( a_rinfo * )malloc( sizeof( a_rinfo ) );
+	assert( ptr->record.a_info != NULL );
+	ptr->record.a_info->a_type = temp->e_rtype;
+	free_record( temp );
+	ptr->record.a_info->a_size = ( a_stop - a_start + 1 );
+	
+	switch( ptr->record.a_info->a_type ) {
+		case integer:
+			ptr->record.a_info->e_value.i_ptr = ( int * )malloc( sizeof( int ) * ptr->record.a_info->a_size );
+			for( i = 0; i < ptr->record.a_info->a_size; i++ ) {
+				ptr->record.a_info->e_value.i_ptr[ i ] = a_start;
+				a_start++;
+			}
+			break;
+		case real:
+			ptr->record.a_info->e_value.r_ptr = ( float * )malloc( sizeof( float ) * ptr->record.a_info->a_size );
+			for( i = 0; i < ptr->record.a_info->a_size; i++ ) {
+				ptr->record.a_info->e_value.r_ptr[ i ] = ( float )a_start;
+				a_start++;
+			}
+			break;	
+		default:
+			fprintf( stderr, "unsupported array type\n" );
+			break;
 	}
-	return val % t_size;
+	
+	return ptr;
+}
+void free_record( r_ptr *ptr ) {
+	if( ptr == NULL ) return;
+	switch( ptr->e_rtype ) {
+			case integer:
+				free( ptr->record.i_info );
+				break;
+			case real:
+				free( ptr->record.r_info );
+				break;
+			//
+			case array:
+				if( ptr->record.a_info->a_type == integer )
+					free( ptr->record.a_info->e_value.i_ptr );
+				else
+					free( ptr->record.a_info->e_value.r_ptr );
+				free( ptr->record.a_info );
+				break;
+			case function:
+				break;
+			case procedure:
+				break;
+			default:
+				break;
+		}
+	free( ptr );
+}
+void install_program_record( t_entry *ptr ) {
+	r_ptr *rptr;
+	
+	rptr = ( r_ptr * )malloc( sizeof( r_ptr ) );
+	assert( rptr != NULL );
+	rptr->e_rtype = program;
+	ptr->e_record = rptr;
+}
+void install_entry_record( t_entry *ptr, r_ptr *record ) {
+	ptr->e_record = record;
+}
+void free_entry( t_entry *ptr ) {
+	if( ptr == NULL )
+		return;
+	else {
+		free_entry( ptr->n_entry );
+		free( ptr->e_symbol );
+		free_record( ptr->e_record );
+		free( ptr );
+	}
 }
 t_entry *insert_entry( s_table *s_stack, char *e_symbol ) {
 	t_entry *ptr;
@@ -33,10 +131,10 @@ t_entry *insert_entry( s_table *s_stack, char *e_symbol ) {
 	ptr = ( t_entry * )malloc( sizeof( t_entry ) );
 	assert( ptr != NULL );
 
-	/* set entry info */
+	/* set/initialize entry info */
 	ptr->e_symbol = strdup( e_symbol );
 	free( e_symbol );
-	ptr->e_rtype = unknown;
+	ptr->e_record = NULL;
 	ptr->n_entry = NULL;
 
 	/* insert */
@@ -49,31 +147,6 @@ t_entry *insert_entry( s_table *s_stack, char *e_symbol ) {
 	}
 
 	return ptr;
-}
-void install_record( t_entry *ptr, r_type e_rtype ) {
-	ptr->e_rtype = e_rtype;
-	switch( e_rtype ) {
-		case program:
-			break;
-		case integer:
-			ptr->e_record.i_info = ( i_rinfo * )malloc( sizeof( i_rinfo ) );
-			assert( ptr->e_record.i_info != NULL );
-			ptr->e_record.i_info->e_init = 0;
-			break;
-		case real:
-			ptr->e_record.r_info = ( r_rinfo * )malloc( sizeof( r_rinfo ) );
-			assert( ptr->e_record.r_info != NULL );
-			ptr->e_record.r_info->e_init = 0;
-			break;
-		case array:
-			break;
-		case function:
-			break;
-		case procedure:
-			break;
-		default:
-			break;
-	}
 }
 t_entry *find_entry( s_table *s_stack, char *e_symbol ) {
 	t_entry *ptr;
@@ -94,31 +167,6 @@ t_entry *find_entry( s_table *s_stack, char *e_symbol ) {
 		s_stack = s_stack->e_scope;
 	}
 	return NULL;
-}
-void free_entry( t_entry *ptr ) {
-	if( ptr == NULL )
-		return;
-	else {
-		free_entry( ptr->n_entry );
-		free( ptr->e_symbol );
-		switch( ptr->e_rtype ) {
-			case integer:
-				free( ptr->e_record.i_info );
-				break;
-			case real:
-				free( ptr->e_record.r_info );
-				break;
-			case array:
-				break;
-			case function:
-				break;
-			case procedure:
-				break;
-			default:
-				break;
-		}
-		free( ptr );
-	}
 }
 s_table *push_scope( s_table *s_stack ) {
 	s_table *ptr;
@@ -156,8 +204,24 @@ s_table *pop_scope( s_table *s_stack ) {
 		return ptr;
 	}
 }
+int hash_pjw( const void *t_key, int t_size ) {
+	const char *ptr = t_key;
+	int val = 0;
+
+	while( *ptr != '\0' ) {
+		int tmp;
+		val = ( ( val << 4 ) + ( *ptr ) );
+		if( ( tmp = ( val & 0xf0000000 ) ) ) {
+			val = val ^ ( tmp >> 24 );
+			val = val ^ tmp;
+		}
+		ptr++;
+	}
+	return val % t_size;
+}
 char *type_to_str( t_entry *ptr ) {
-	switch( ptr->e_rtype ) {
+	if( ptr->e_record == NULL ) return "NULL";
+	switch( ptr->e_record->e_rtype ) {
 		case unknown:
 			return "UNKN";
 		case program:
@@ -180,31 +244,47 @@ void print_sstack( s_table *s_stack ) {
 	t_entry *ptr;
 	int i;
 
+	fprintf( stderr, "SYMBOL TABLE(S)\n----------\n" );
 	if( s_stack == NULL ) return;
 	else {
-		for( i = 0; i < TABLE_SIZE; i++ ) {
-			if( s_stack->s_entries[ i ] != NULL ) {
-				ptr = s_stack->s_entries[ i ];
-				while( ptr != NULL ) {
-					fprintf( stderr, "[%s|%s", ptr->e_symbol, type_to_str( ptr ) );
-					switch( ptr->e_rtype ) {
-						case integer:
-							fprintf( stderr, "|%d]->", ptr->e_record.i_info->e_init );
-							break;
-						case real:
-							fprintf( stderr, "|%d]->", ptr->e_record.r_info->e_init );
-							break;
-						//TODO
-						//case array:
-						//	fprintf( stderr, "|%d]->", );
-						//	break;
-						default:
-							fprintf( stderr, "]->" );
+		while( s_stack != NULL ) {
+			for( i = 0; i < TABLE_SIZE; i++ ) {
+				if( s_stack->s_entries[ i ] != NULL ) {
+					ptr = s_stack->s_entries[ i ];
+					while( ptr != NULL ) {
+						fprintf( stderr, "[%s|%s", ptr->e_symbol, type_to_str( ptr ) );
+						switch( ptr->e_record->e_rtype ) {
+							case integer:
+								fprintf( stderr, "|%d]->", ptr->e_record->record.i_info->e_init );
+								break;
+							case real:
+								fprintf( stderr, "|%d]->", ptr->e_record->record.r_info->e_init );
+								break;
+							case array:
+								if( ptr->e_record->record.a_info->a_type == integer ) {
+									fprintf( stderr, "|%d|%d|%d]->", ptr->e_record->record.a_info->a_size,
+										ptr->e_record->record.a_info->e_value.i_ptr[ 0 ],
+										ptr->e_record->record.a_info->e_value.i_ptr[ ptr->e_record->record.a_info->a_size - 1 ] );
+								}
+								else if( ptr->e_record->record.a_info->a_type == real ) {
+									fprintf( stderr, "|%d|%d|%d]->", ptr->e_record->record.a_info->a_size,
+										ptr->e_record->record.a_info->e_value.r_ptr[ 0 ],
+										ptr->e_record->record.a_info->e_value.r_ptr[ ptr->e_record->record.a_info->a_size - 1 ] );
+								}
+								else {
+									fprintf( stderr, "unrecognized array type in symbol table\n" );
+								}
+								break;
+							// TODO
+							default:
+								fprintf( stderr, "]->" );
+						}
+						ptr = ptr->n_entry;
 					}
-					ptr = ptr->n_entry;
+					fprintf( stderr, "\n" );
 				}
-				fprintf( stderr, "\n" );
 			}
+			s_stack = s_stack->e_scope;
 		}
 		fprintf( stderr, "----------\n" );
 	}

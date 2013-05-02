@@ -33,4 +33,4 @@ lex.yy.c: dragon.l
 	$(LEX) $(LEFLAGS) dragon.l
 
 clean:
-	rm -rf *.o lex.yy.c *.tab.* dragon *.output
+	rm -rf *.o lex.yy.c *.tab.* dragon *.output a.out

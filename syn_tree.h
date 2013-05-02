@@ -7,24 +7,25 @@
 
 /* includes */
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 #include "sym_table.h"
-#include <stdio.h>	// remove
 
 /* structs */
 typedef struct ident_n {		/* tree node: ident */
 	t_entry *e_ptr;			// symbol table entry
 	struct ident_n *n_ident;	// next ident node
 } ident_n;
+
 typedef struct program_n {		/* tree node: program */
 	ident_n *p_name;		// program name
 	ident_n *p_ilist;		// input arguments
-	ident_n *p_declarations;	// declarations
+	//ident_n *p_declarations;	// declarations
 	// TODO
 } program_n;
 
 /* unions */
-typedef union {
+typedef union {				/* plugs into yylval union for tree construction in yacc file */
 	program_n *program;
 	ident_n *ident;
 } n_ptr;

@@ -17,7 +17,7 @@ program_n *make_program( ident_n *p_name, ident_n *i_list ) {
 	/* set program info */
 	ptr->p_name = p_name;
 	ptr->p_ilist = i_list;
-	//ptr->p_declarations = NULL;
+	ptr->p_declarations = NULL;
 	// TODO	
 
 	return ptr;
@@ -38,16 +38,15 @@ ident_n *make_ident( t_entry *e_ptr, ident_n *n_ident ) {
 void free_program( program_n *ptr ) {
 	free_ident( ptr->p_name );
 	free_ident( ptr->p_ilist );
-	free_ident( ptr->p_declarations );
+	if( ptr->p_declarations != NULL )
+		free_ident( ptr->p_declarations );
 	// TODO
 	free( ptr );
 }
 void free_ident( ident_n *ptr ) {
-	if( ptr == NULL )
-		return;
-	else {
+	if( ptr->n_ident != NULL )
 		free_ident( ptr->n_ident );
-	}
+	if( ptr != NULL )
 		free( ptr );	
 }
 void print_program( program_n *ptr ) {
