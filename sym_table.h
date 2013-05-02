@@ -83,6 +83,8 @@ void free_record( r_ptr *ptr );						/* destructor for records of all types */
 
 void install_program_record( t_entry *ptr );				/* installs a program record in given table entry */
 
+void install_unknown_record( t_entry *ptr );				/* installs a record for input args to the program */
+
 void install_entry_record( t_entry *ptr, r_ptr *record );		/* install record in given symbol table entry */
 
 void free_entry( t_entry *ptr );					/* destructor for symbol table entries */

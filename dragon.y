@@ -93,26 +93,22 @@ void yyerror( char *s );
 program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'				
 			  declarations								{
 			  										/* insert program symbol in symbol table */
-													e_ptr = find_entry( s_stack, $2 );
-													if( e_ptr == NULL ) {
-														e_ptr = insert_entry( s_stack, $2 );
-														install_program_record( e_ptr );
-													}
-													
+													e_ptr = insert_entry( s_stack, $2 );
+													install_program_record( e_ptr );
+																										
 													/* initiate program tree construction */
-													t_ptr.program = make_program( make_ident( e_ptr, NULL ),
-																	$4.ident );
+													t_ptr.program = make_program( make_ident( e_ptr, NULL ), $4.ident );
 													
 													/* add declarations */
-													t_ptr.program->p_declarations = $7.ident;
+													//t_ptr.program->p_declarations = $7.ident;
 													
 													// TODO
 												}
 			  subprogram_declarations
 			  compound_statement
 			  '.'									{	
-													//print_program( t_ptr.program );
-													//print_sstack( s_stack );
+													print_program( t_ptr.program );
+													print_sstack( s_stack );
 													free_program( t_ptr.program );
 												}
 			| /* epsilon */								{}
@@ -122,12 +118,14 @@ identifier_list		: _IDENT_								{
 													e_ptr = find_entry( s_stack, $1 );
 													if( e_ptr == NULL )
 														e_ptr = insert_entry( s_stack, $1 );
+													install_unknown_record( e_ptr );
 													$$.ident = make_ident( e_ptr, NULL );
 												}
 		  	| _IDENT_ ',' identifier_list						{
 													e_ptr = find_entry( s_stack, $1 );
 													if( e_ptr == NULL )
 														e_ptr = insert_entry( s_stack, $1 );
+													install_unknown_record( e_ptr );
 													$$.ident = make_ident( e_ptr, $3.ident );
 												}
 			;

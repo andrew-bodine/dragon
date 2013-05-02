@@ -107,6 +107,14 @@ void install_program_record( t_entry *ptr ) {
 	rptr->e_rtype = program;
 	ptr->e_record = rptr;
 }
+void install_unknown_record( t_entry *ptr ) {
+	r_ptr *rptr;
+	
+	rptr = ( r_ptr * )malloc( sizeof( r_ptr ) );
+	assert( rptr != NULL );
+	rptr->e_rtype = unknown;
+	ptr->e_record = rptr;
+}
 void install_entry_record( t_entry *ptr, r_ptr *record ) {
 	ptr->e_record = record;
 }
