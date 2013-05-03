@@ -218,7 +218,40 @@ variable		: _IDENT_								{
 													$$.comp = make_comp( ident, NULL, NULL );
 													$$.comp->attr.ident = make_ident( e_ptr, NULL );
 												}
-			| _IDENT_ '[' expression ']'						{}
+			| _IDENT_ '[' expression ']'						{
+													/* need to find symbol in the symbol table */
+													e_ptr = find_entry( s_stack, $1 );
+													if( e_ptr == NULL ) {
+														fprintf( stderr, "ERROR: trying to access an undefined array\n" );
+														exit( -1 );
+													}
+													/* check that symbol is an array */
+													else if( e_ptr->e_record->e_rtype != array ) {
+														fprintf( stderr, "ERROR: accessing an element as an array that isn't an array\n" );
+														exit( -1 );
+													}
+													/* check index type against type of array */
+													else if( ( e_ptr->e_record->record.a_info->a_type == integer &&
+														   $3.comp->type != inum ) || ( $3.comp->type != rnum &&
+														   e_ptr->e_record->record.a_info->a_type == real ) ) {
+														fprintf( stderr, "ERROR: accessing an array with invalid index type\n" );
+														exit( -1 );
+													}
+													/* check index against bounds of array */
+													if( $3.comp->type == inum && ( $3.comp->attr.ival < 0 || 
+														$3.comp->attr.ival >= e_ptr->e_record->record.a_info->a_size ) ) {
+														fprintf( stderr, "ERROR: index out of array bounds\n" );
+														exit( -1 );
+													}
+													else if( $3.comp->type == rnum && ( $3.comp->attr.rval < 0 || 
+														$3.comp->attr.rval >= e_ptr->e_record->record.a_info->a_size ) ) {
+														fprintf( stderr, "ERROR: index out of array bounds\n" );
+														exit( -1 );
+													}
+													$$.comp = make_comp( ident, NULL, NULL );
+													$$.comp->attr.ident = make_ident( e_ptr, NULL );
+													$$.comp->index = $3.comp->attr.ival;
+												}
 			;
 
 procedure_statement	: _IDENT_								{}
@@ -247,14 +280,13 @@ factor			: variable								{}
 		   	| _IDENT_ '(' expression_list ')'					{}
 			| _INUMBER_								{
 													$$.comp = make_comp( inum, NULL, NULL );
-													/* change to accomodate floats */
 													$$.comp->attr.ival = $1;
 												}
 			| _RNUMBER_								{
 													$$.comp = make_comp( rnum, NULL, NULL );
 													$$.comp->attr.rval = $1;
 												}
-			| '(' expression ')'							{}
+			| '(' expression ')'							{	$$.comp = $2.comp; }
 			| _NOT_ factor								{}
 			;
 

@@ -16,7 +16,7 @@
 
 /* enums */
 typedef enum {
-	inum, rnum, assignop, ident
+	inum, rnum, assignop, ident, addop, relop, mulop
 } c_type;
 
 
@@ -28,6 +28,7 @@ typedef struct ident_n {			/* tree node: ident */
 
 typedef struct comp_n {				/* tree node: statement composition */
 	c_type type;				// type of composition node, indicates what union ptr to use
+	int index;				// used for arrays
 	union {
 		int ival;	// INUM
 		float rval;	// RNUM
