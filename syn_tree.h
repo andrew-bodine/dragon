@@ -14,18 +14,19 @@
 #include "sym_table.h"
 
 
+/* struct declarations */
+typedef struct ident_n ident_n;
+typedef struct comp_n comp_n;
+typedef struct statement_n statement_n;
+typedef struct program_n program_n;
+
+
 /* enums */
 typedef enum {
 	inum, rnum, assignop, ident, addop, waddop, mulop, wmulop, relop,
 	statement, ifs, thens, elses
 } c_type;
 
-
-/* struct declarations */
-typedef struct ident_n ident_n;
-typedef struct comp_n comp_n;
-typedef struct statement_n statement_n;
-typedef struct program_n program_n;
 
 /* structs */
 typedef struct ident_n {			/* tree node: ident */

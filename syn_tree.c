@@ -141,6 +141,7 @@ void print_comp( comp_n *ptr, int spaces ) {
 		
 	switch( ptr->type ) {
 		case statement:
+			fprintf( stderr, "\n" );
 			print_statement( ptr->attr.statement, spaces + 16 );
 			break;
 		case assignop:
