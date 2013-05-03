@@ -140,8 +140,11 @@ void print_comp( comp_n *ptr, int spaces ) {
 		case assignop:
 			fprintf( stderr, "[ASSIGNOP]" );
 			break;
-		case num:
-			fprintf( stderr, "[NUM:%d]", ptr->attr.ival );
+		case inum:
+			fprintf( stderr, "[INUM:%d]", ptr->attr.ival );
+			break;
+		case rnum:
+			fprintf( stderr, "[RNUM:%f]", ptr->attr.rval );
 			break;
 		case ident:
 			fprintf( stderr, "[IDENT:%s]", ptr->attr.ident->e_ptr->e_symbol );

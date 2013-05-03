@@ -6,7 +6,7 @@ program tree( input, output );
 	var c,d: real;
 	var p, q: array[ 5 .. 13 ] of integer;
 begin
-	a := 3
+	a := 3.00
 end.
 
 

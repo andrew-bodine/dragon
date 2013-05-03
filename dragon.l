@@ -38,7 +38,8 @@ pscend		\*\)
 letter		[a-zA-Z]
 digit		[0-9]
 digits		{digit}{digit}*
-number		{digits}|({digits}.{digits})
+inumber		{digits}
+rnumber		{digits}.{digits}
 ident		{letter}({letter}|{digit})*
 
 span		\.\.
@@ -93,9 +94,13 @@ assignop	:=
 				yylval.sval = strdup( yytext );
 				return _IDENT_;
 			}
-{number}		{
+{inumber}		{
 				yylval.ival = atoi( yytext );
-				return _NUMBER_;
+				return _INUMBER_;
+			}
+{rnumber}		{
+				yylval.rval = atof( yytext );
+				return _RNUMBER_;
 			}
 
 .			{ yyerror( "unrecognized character" ); }

@@ -29,7 +29,8 @@ void yyerror( char *s );
 
 /* yylval union */
 %union {
-	int ival;	/* number */
+	int ival;	/* integer number */
+	float rval;	/* real number */
 	char *sval;	/* ident */
 	n_ptr tval;	/* syntax tree node */
 	r_ptr *record;	/* symbol table entry record */
@@ -75,7 +76,8 @@ void yyerror( char *s );
 			*/
 %token _ASSIGNOP_	/* := */
 %token <sval> _IDENT_
-%token <ival> _NUMBER_	/* matches unsigned integers */
+%token <ival> _INUMBER_	/* matches unsigned integers */
+%token <rval> _RNUMBER_ /* matches floats */
 
 /* precedence */
 %nonassoc _IF_THEN_
@@ -159,7 +161,7 @@ declarations		: _VAR_ identifier_list ':' type ';' declarations			{
 			;
 
 type			: standard_type								{	$$ = $1; }
-	   		| _ARRAY_ '[' _NUMBER_ _SPAN_ _NUMBER_ ']' _OF_ standard_type		{	$$ = make_array_record( $8, $3, $5 ); }
+	   		| _ARRAY_ '[' _INUMBER_ _SPAN_ _INUMBER_ ']' _OF_ standard_type		{	$$ = make_array_record( $8, $3, $5 ); }
 			;
 
 standard_type		: _INTEGER_								{	$$ = make_integer_record( ); }
@@ -243,10 +245,14 @@ term			: factor								{	$$.comp = $1.comp; }
 
 factor			: variable								{}
 		   	| _IDENT_ '(' expression_list ')'					{}
-			| _NUMBER_								{
-													$$.comp = make_comp( num, NULL, NULL );
+			| _INUMBER_								{
+													$$.comp = make_comp( inum, NULL, NULL );
 													/* change to accomodate floats */
 													$$.comp->attr.ival = $1;
+												}
+			| _RNUMBER_								{
+													$$.comp = make_comp( rnum, NULL, NULL );
+													$$.comp->attr.rval = $1;
 												}
 			| '(' expression ')'							{}
 			| _NOT_ factor								{}
