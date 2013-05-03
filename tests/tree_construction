@@ -2,11 +2,15 @@
 
 
 program tree( input, output );
-	{var a,b: integer;
-	var c,d: real;}
-	var p: array[ 5 .. 13 ] of integer;
+	var a,b: integer;
+	{var c,d: real;
+	var p: array[ 5 .. 13 ] of integer;}
 begin
-	c := ( 4 <> 2 )
+	a := ( 4 <> 2 );
+	begin
+		b := 5 + 1
+	end;
+	b := 5
 end.
 
 

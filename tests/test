@@ -8,8 +8,8 @@ program main( input, output );
 	var q: array[ 1 .. 10 ] of real;
 
 begin
-	read( a );
-	read( b );
+	{read( a );
+	read( b );}
 	p[ p[ b ] ] := p[ p[ p[ b + a ] ] ]
 end.
 

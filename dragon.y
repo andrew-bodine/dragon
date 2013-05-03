@@ -199,10 +199,10 @@ parameter_list		: identifier_list ':' type						{}
 			| parameter_list ';' identifier_list ':' type				{}
 			;
 
-compound_statement	: _BEGIN_ optional_statements _END_					{	$$ = $2; }
+compound_statement	: _BEGIN_ optional_statements _END_					{	$$.statement = $2.statement; }
 			;
 
-optional_statements	: statement_list							{}
+optional_statements	: statement_list							{	$$.statement = $1.statement; }
 
 			| /* epsilon */								{	$$.statement = NULL; }
 			;
@@ -216,7 +216,10 @@ statement		: variable _ASSIGNOP_ expression					{	$$.comp = make_comp( assignop,
 
 			| procedure_statement							{}
 
-			| compound_statement							{}
+			| compound_statement							{
+													$$.comp = make_comp( statement, NULL, NULL );
+													$$.comp->attr.statement = $1.statement;
+												}
 
 			| _IF_ expression _THEN_ statement %prec _IF_THEN_			{}
 

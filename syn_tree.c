@@ -121,13 +121,13 @@ void print_program( program_n *ptr ) {
 	if( ptr->p_statements == NULL )
 		fprintf( stderr, "NONE\n" );
 	else
-		print_statement( ptr->p_statements );
+		print_statement( ptr->p_statements, 16 );
 
 	fprintf( stderr, "\n" );
 }
-void print_statement( statement_n *ptr ) {
+void print_statement( statement_n *ptr, int spaces ) {
 	while( ptr != NULL ) {
-		print_comp( ptr->root, 16 );
+		print_comp( ptr->root, spaces );
 		ptr = ptr->n_statement;
 	}
 }
@@ -140,6 +140,9 @@ void print_comp( comp_n *ptr, int spaces ) {
 		fprintf( stderr, " " );
 		
 	switch( ptr->type ) {
+		case statement:
+			print_statement( ptr->attr.statement, spaces + 16 );
+			break;
 		case assignop:
 			fprintf( stderr, "[ASSIGNOP]" );
 			break;

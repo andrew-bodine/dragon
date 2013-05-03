@@ -16,9 +16,16 @@
 
 /* enums */
 typedef enum {
-	inum, rnum, assignop, ident, addop, waddop, mulop, wmulop, relop
+	inum, rnum, assignop, ident, addop, waddop, mulop, wmulop, relop,
+	statement, ifs, thens, elses
 } c_type;
 
+
+/* struct declarations */
+typedef struct ident_n ident_n;
+typedef struct comp_n comp_n;
+typedef struct statement_n statement_n;
+typedef struct program_n program_n;
 
 /* structs */
 typedef struct ident_n {			/* tree node: ident */
@@ -37,6 +44,7 @@ typedef struct comp_n {				/* tree node: statement composition */
 		int oval;			// OP
 		char *woval;			// WORD OP
 		ident_n *ident;			// IDENT
+		statement_n *statement;		// Nested STATEMENT(S)
 	} attr;
 	struct comp_n *left, *right;		// left and right children
 } comp_n;
@@ -84,7 +92,7 @@ void free_ident( ident_n *ptr );					/* destructor: ident(s) */
 
 void print_program( program_n *ptr );					/* print helper: program */
 
-void print_statement( statement_n *ptr );				/* print helper: statmenet */
+void print_statement( statement_n *ptr, int spaces );			/* print helper: statmenet */
 
 void print_comp( comp_n *ptr, int spaces );				/* print helper: composition */
 

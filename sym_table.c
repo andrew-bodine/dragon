@@ -82,7 +82,7 @@ void free_record( r_ptr *ptr ) {
 			case real:
 				free( ptr->record.r_info );
 				break;
-			//
+			//TODO
 			case array:
 				if( ptr->record.a_info->a_type == integer )
 					free( ptr->record.a_info->e_value.i_ptr );
@@ -252,7 +252,7 @@ void print_sstack( s_table *s_stack ) {
 	t_entry *ptr;
 	int i;
 
-	fprintf( stderr, "SYMBOL TABLE(S)\n----------\n" );
+	fprintf( stderr, "SYMBOL TABLE(S)\n---------------------------------------\n" );
 	if( s_stack == NULL ) return;
 	else {
 		while( s_stack != NULL ) {
@@ -294,6 +294,6 @@ void print_sstack( s_table *s_stack ) {
 			}
 			s_stack = s_stack->e_scope;
 		}
-		fprintf( stderr, "----------\n" );
+		fprintf( stderr, "---------------------------------------\n" );
 	}
 }
