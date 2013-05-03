@@ -6,7 +6,7 @@ program tree( input, output );
 	var c,d: real;}
 	var p: array[ 5 .. 13 ] of integer;
 begin
-	p[ 4 ] := 4 or 2
+	c := ( 4 <> 2 )
 end.
 
 

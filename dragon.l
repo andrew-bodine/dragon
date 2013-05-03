@@ -43,11 +43,13 @@ rnumber		{digits}.{digits}
 ident		{letter}({letter}|{digit})*
 
 span		\.\.
-terminal	[(|)|;|.|,|:|\[|\]|+|-]
+terminal	[(|)|;|.|,|:|\[|\]]
 
-relop		[=|<>|<|<=|>|>=]
-addop		or
-mulop		[*|/]|div|mod|and
+relop		[=|<|>]|<>|<=|>=
+addop		[+|-]
+waddop		or
+mulop		[*|/]
+wmulop		div|mod|and
 assignop	:=
 
  /* states */
@@ -84,14 +86,25 @@ assignop	:=
 "integer"		{ return _INTEGER_; }
 "real"			{ return _REAL_; }
 
-{relop}			{ return _RELOP_; }
-{addop}			{
+{relop}			{
 				yylval.sval = strdup( yytext );
+				return _RELOP_;
+			}
+{addop}			{
+				yylval.ival = yytext[ 0 ];
 				return _ADDOP_;
+			}
+{waddop}		{
+				yylval.sval = strdup( yytext );
+				return _WADDOP_;
 			}
 {mulop}			{
 				yylval.ival = yytext[ 0 ];
 				return _MULOP_;
+			}
+{wmulop}		{
+				yylval.sval = strdup( yytext );
+				return _WMULOP_;
 			}
 {assignop}		{ return _ASSIGNOP_; }
 

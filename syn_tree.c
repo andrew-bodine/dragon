@@ -143,11 +143,17 @@ void print_comp( comp_n *ptr, int spaces ) {
 		case assignop:
 			fprintf( stderr, "[ASSIGNOP]" );
 			break;
-		case wordop:
-			fprintf( stderr, "[WORDOP:%s]", ptr->attr.woval );
+		case relop:
+			fprintf( stderr, "[RELOP:%s]", ptr->attr.woval );
+			break;
+		case waddop:
+			fprintf( stderr, "[ADDOP:%s]", ptr->attr.woval );
 			break;
 		case addop:
 			fprintf( stderr, "[ADDOP:%c]", ( char )ptr->attr.ival );
+			break;
+		case wmulop:
+			fprintf( stderr, "[MULOP:%s]", ptr->attr.woval );
 			break;
 		case mulop:
 			fprintf( stderr, "[MULOP:%c]", ( char )ptr->attr.ival );

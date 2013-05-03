@@ -16,7 +16,7 @@
 
 /* enums */
 typedef enum {
-	inum, rnum, assignop, ident, addop, relop, mulop, wordop
+	inum, rnum, assignop, ident, addop, waddop, mulop, wmulop, relop
 } c_type;
 
 

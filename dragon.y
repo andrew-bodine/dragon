@@ -54,7 +54,7 @@ void yyerror( char *s );
 %token _NOT_		/* logical NOT (negation) */
 %token _INTEGER_	/* basic integer type */
 %token _REAL_		/* basic real (float) type */
-%token _RELOP_		/*
+%token <sval> _RELOP_	/*
 				=  : equal
 				<> : not-equal
 				<  : less-than
@@ -62,14 +62,16 @@ void yyerror( char *s );
 				>  : greater-than
 				>= : greater-or-equal
 			*/
-%token <sval> _ADDOP_	/* 
+%token <ival> _ADDOP_	/* 
 				+  : addition for both integer and real arguments
-				-  : subtraction for both integer and real arguments
-				or : logical OR
+				-  : subtraction for both integer and real arguments	
 			*/
+%token <sval> _WADDOP_	/* or : logical OR */
 %token <ival> _MULOP_	/* 
 				*   : multiplication for both integer and real arguments
 				/   : division for both integer and real arguments
+			*/
+%token <sval> _WMULOP_ 	/*
 				div : quotient in integer division
 				mod : remainder in integer division
 				and : logical AND
@@ -87,7 +89,6 @@ void yyerror( char *s );
 %type <tval> program identifier_list declarations compound_statement 
 %type <tval> optional_statements statement_list statement variable expression simple_expression term factor
 %type <record> type standard_type
-%type <ival> sign
 
 /* start */
 %start program
@@ -119,7 +120,7 @@ program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'
 													print_sstack( s_stack );
 													free_program( t_ptr.program );
 												}
-			| /* epsilon */								{}
+			| /* epsilon */								{	/* empty file .: nothing to do */ }
 			;
 
 identifier_list		: _IDENT_								{
@@ -282,23 +283,26 @@ expression_list		: expression								{}
 
 expression		: simple_expression							{	$$.comp = $1.comp; }
 
-			| simple_expression _RELOP_ simple_expression				{}
+			| simple_expression _RELOP_ simple_expression				{
+													$$.comp = make_comp( relop, $1.comp, $3.comp );
+													$$.comp->attr.woval = $2;
+												}
 			;
 
 simple_expression	: term									{	$$.comp = $1.comp; }
 
-			| sign term								{	
+			| _ADDOP_ term								{	
 													$$.comp = $2.comp;
 													if( $1 == '-')
 														$$.comp->u_minus = 1;
 												}
 
-			| simple_expression _ADDOP_ term					{
-													$$.comp = make_comp( wordop, $1.comp, $3.comp );
+			| simple_expression _WADDOP_ term					{
+													$$.comp = make_comp( waddop, $1.comp, $3.comp );
 													$$.comp->attr.woval = $2;
 												}
 
-			| simple_expression sign term						{	
+			| simple_expression _ADDOP_ term					{	
 													$$.comp = make_comp( addop, $1.comp, $3.comp );
 													$$.comp->attr.oval = $2;
 												}
@@ -309,6 +313,10 @@ term			: factor								{	$$.comp = $1.comp; }
 		 	| term _MULOP_ factor							{
 		 											$$.comp = make_comp( mulop, $1.comp, $3.comp );
 		 											$$.comp->attr.oval = $2;
+		 										}
+		 	| term _WMULOP_ factor							{
+		 											$$.comp = make_comp( wmulop, $1.comp, $3.comp );
+		 											$$.comp->attr.woval = $2;
 		 										}
 			;
 
@@ -333,12 +341,7 @@ factor			: variable								{	$$.comp = $1.comp; }
 													$$.comp->l_not = 1;
 												}
 			;
-
-sign			: '+'									{ 	$$ = '+'; }
-
-		 	| '-'									{ 	$$ = '-'; }
-			;
-
+			
 %%
 
 void yyerror( char *s ) {
