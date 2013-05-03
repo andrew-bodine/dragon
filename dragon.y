@@ -82,8 +82,10 @@ void yyerror( char *s );
 %nonassoc _ELSE_
 
 /* types */
-%type <tval> program identifier_list declarations compound_statement optional_statements statement_list statement variable expression
+%type <tval> program identifier_list declarations compound_statement 
+%type <tval> optional_statements statement_list statement variable expression simple_expression term factor
 %type <record> type standard_type
+%type <ival> sign
 
 /* start */
 %start program
@@ -225,29 +227,33 @@ expression_list		: expression								{}
 			| expression_list ',' expression					{}
 			;
 
-expression		: simple_expression							{	$$.comp = NULL; }
+expression		: simple_expression							{	$$.comp = $1.comp; }
 			| simple_expression _RELOP_ simple_expression				{}
 			;
 
-simple_expression	: term									{}
+simple_expression	: term									{	$$.comp = $1.comp; }
 			| sign term								{}
 			| simple_expression _ADDOP_ term					{}
 			| simple_expression sign term						{}
 			;
 
-term			: factor								{}
+term			: factor								{	$$.comp = $1.comp; }
 		 	| term _MULOP_ factor							{}
 			;
 
 factor			: variable								{}
 		   	| _IDENT_ '(' expression_list ')'					{}
-			| _NUMBER_								{}
+			| _NUMBER_								{
+													$$.comp = make_comp( num, NULL, NULL );
+													/* change to accomodate floats */
+													$$.comp->attr.ival = $1;
+												}
 			| '(' expression ')'							{}
 			| _NOT_ factor								{}
 			;
 
-sign			: '+'									{}
-		 	| '-'									{}
+sign			: '+'									{ 	$$ = '+'; }
+		 	| '-'									{ 	$$ = '-'; }
 			;
 
 %%

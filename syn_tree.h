@@ -81,7 +81,7 @@ void print_program( program_n *ptr );					/* print helper: program */
 
 void print_statement( statement_n *ptr );				/* print helper: statmenet */
 
-void print_comp( comp_n *ptr );						/* print helper: composition */
+void print_comp( comp_n *ptr, int spaces );				/* print helper: composition */
 
 void print_ident( ident_n *ptr );					/* print helper: ident(s) */
 

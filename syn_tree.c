@@ -114,7 +114,7 @@ void print_program( program_n *ptr ) {
 		print_ident( ptr->p_declarations );
 
 	/* program: statements */
-	fprintf( stderr, "\tSTTS: " );
+	fprintf( stderr, "\tSTTS: \n" );
 	if( ptr->p_statements == NULL )
 		fprintf( stderr, "NONE\n" );
 	else
@@ -123,10 +123,37 @@ void print_program( program_n *ptr ) {
 	fprintf( stderr, "\n" );
 }
 void print_statement( statement_n *ptr ) {
-	// TODO
+	while( ptr != NULL ) {
+		print_comp( ptr->root, 16 );
+		ptr = ptr->n_statement;
+	}
 }
-void print_comp( comp_n *ptr ) {
-	// TODO
+void print_comp( comp_n *ptr, int spaces ) {
+	int i;
+	
+	if( ptr == NULL ) return;
+	
+	for( i = 0; i < spaces; i++ )
+		fprintf( stderr, " " );
+		
+	switch( ptr->type ) {
+		case assignop:
+			fprintf( stderr, "[ASSIGNOP]" );
+			break;
+		case num:
+			fprintf( stderr, "[NUM:%d]", ptr->attr.ival );
+			break;
+		case ident:
+			fprintf( stderr, "[IDENT:%s]", ptr->attr.ident->e_ptr->e_symbol );
+			break;
+		default:
+			fprintf( stderr, "[UNKNOWN]" );
+			break;
+	}
+	fprintf( stderr, "\n" );
+	
+	print_comp( ptr->left, spaces + 4 );
+	print_comp( ptr->right, spaces + 4 );
 }
 void print_ident( ident_n *ptr ) {
 	while( ptr != NULL ) {
