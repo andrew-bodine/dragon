@@ -82,7 +82,7 @@ void yyerror( char *s );
 %nonassoc _ELSE_
 
 /* types */
-%type <tval> program identifier_list declarations
+%type <tval> program identifier_list declarations compound_statement optional_statements statement_list statement variable expression
 %type <record> type standard_type
 
 /* start */
@@ -91,9 +91,11 @@ void yyerror( char *s );
 %%
 
 program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'				
-			  declarations								{
+			  declarations								
+			  subprogram_declarations
+			  compound_statement							{
 			  										/* insert program symbol in symbol table */
-													e_ptr = insert_entry( s_stack, $2 );
+			  										e_ptr = insert_entry( s_stack, $2 );
 													install_program_record( e_ptr );
 																										
 													/* initiate program tree construction */
@@ -102,10 +104,12 @@ program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'
 													/* add declarations */
 													t_ptr.program->p_declarations = $7.ident;
 													
+													/* add sub programs */
 													// TODO
-												}
-			  subprogram_declarations
-			  compound_statement
+													
+													/* add statements */
+													t_ptr.program->p_statements = $9.statement;
+												}			  
 			  '.'									{	
 													print_program( t_ptr.program );
 													print_sstack( s_stack );
@@ -182,18 +186,18 @@ parameter_list		: identifier_list ':' type						{}
 			| parameter_list ';' identifier_list ':' type				{}
 			;
 
-compound_statement	: _BEGIN_ optional_statements _END_					{}
+compound_statement	: _BEGIN_ optional_statements _END_					{	$$ = $2; }
 			;
 
 optional_statements	: statement_list							{}
-			| /* epsilon */								{}
+			| /* epsilon */								{	$$.statement = NULL; }
 			;
 
-statement_list		: statement								{}
-			| statement_list ';' statement						{}
+statement_list		: statement								{	$$.statement = make_statement( $1.comp, NULL ); }
+			| statement ';' statement_list						{	$$.statement = make_statement( $1.comp, $3.statement ); }
 			;
 
-statement		: variable _ASSIGNOP_ expression					{}
+statement		: variable _ASSIGNOP_ expression					{	$$.comp = make_comp( assignop, $1.comp, $3.comp ); }
 			| procedure_statement							{}
 			| compound_statement							{}
 			| _IF_ expression _THEN_ statement %prec _IF_THEN_			{}
@@ -201,7 +205,15 @@ statement		: variable _ASSIGNOP_ expression					{}
 			| _WHILE_ expression _DO_ statement					{}
 			;
 
-variable		: _IDENT_								{}
+variable		: _IDENT_								{	
+													e_ptr = find_entry( s_stack, $1 );
+													if( e_ptr == NULL ) {
+														e_ptr = insert_entry( s_stack, $1 );
+														install_unknown_record( e_ptr );
+													}
+													$$.comp = make_comp( ident, NULL, NULL );
+													$$.comp->attr.ident = make_ident( e_ptr, NULL );
+												}
 			| _IDENT_ '[' expression ']'						{}
 			;
 
@@ -213,7 +225,7 @@ expression_list		: expression								{}
 			| expression_list ',' expression					{}
 			;
 
-expression		: simple_expression							{}
+expression		: simple_expression							{	$$.comp = NULL; }
 			| simple_expression _RELOP_ simple_expression				{}
 			;
 

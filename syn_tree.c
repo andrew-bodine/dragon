@@ -18,8 +18,36 @@ program_n *make_program( ident_n *p_name, ident_n *i_list ) {
 	ptr->p_name = p_name;
 	ptr->p_ilist = i_list;
 	ptr->p_declarations = NULL;
-	// TODO	
+	// TODO
+	ptr->p_statements = NULL;
 
+	return ptr;
+}
+statement_n *make_statement( comp_n *root, statement_n *n_statement ) {
+	statement_n *ptr;
+	
+	/* allocate/assert memory */
+	ptr = ( statement_n * )malloc( sizeof( statement_n ) );
+	assert( ptr != NULL );
+	
+	/* set statement info */
+	ptr->root = root;
+	ptr->n_statement = n_statement;
+	
+	return ptr;
+}
+comp_n *make_comp( c_type type, comp_n *left, comp_n *right ) {
+	comp_n *ptr;
+	
+	/* allocate/assert memory */
+	ptr = ( comp_n * )malloc( sizeof( comp_n ) );
+	assert( ptr != NULL );
+	
+	/* set composition info */
+	ptr->type = type;
+	ptr->left = left;
+	ptr->right = right;
+	
 	return ptr;
 }
 ident_n *make_ident( t_entry *e_ptr, ident_n *n_ident ) {
@@ -41,6 +69,23 @@ void free_program( program_n *ptr ) {
 	if( ptr->p_declarations != NULL )
 		free_ident( ptr->p_declarations );
 	// TODO
+	free( ptr );
+}
+void free_statement( statement_n *ptr ) {
+	// TODO
+	if( ptr->n_statement != NULL )
+		free_statement( ptr->n_statement );
+	if( ptr != NULL ) {
+		free_comp( ptr->root );
+		free( ptr );
+	}
+}
+void free_comp( comp_n *ptr ) {
+	// TODO: need more cases once we start supporting nested comps
+	if( ptr->left != NULL )
+		free_comp( ptr->left );
+	if( ptr->right != NULL )
+		free_comp( ptr->right );
 	free( ptr );
 }
 void free_ident( ident_n *ptr ) {
@@ -68,7 +113,20 @@ void print_program( program_n *ptr ) {
 	else
 		print_ident( ptr->p_declarations );
 
+	/* program: statements */
+	fprintf( stderr, "\tSTTS: " );
+	if( ptr->p_statements == NULL )
+		fprintf( stderr, "NONE\n" );
+	else
+		print_statement( ptr->p_statements );
+
 	fprintf( stderr, "\n" );
+}
+void print_statement( statement_n *ptr ) {
+	// TODO
+}
+void print_comp( comp_n *ptr ) {
+	// TODO
 }
 void print_ident( ident_n *ptr ) {
 	while( ptr != NULL ) {
