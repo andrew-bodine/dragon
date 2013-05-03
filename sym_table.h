@@ -7,6 +7,14 @@
 #define SYM_TABLE_H
 
 
+/* struct declarations */
+typedef struct i_rinfo i_rinfo;
+typedef struct r_rinfo r_rinfo;
+typedef struct a_rinfo a_rinfo;
+typedef struct r_ptr r_ptr;
+typedef struct t_entry t_entry;
+typedef struct s_table s_table;
+
 /* includes */
 #include <stdlib.h>
 #include <stdio.h>
@@ -18,14 +26,16 @@
 #define TABLE_SIZE 211
 
 
+/**********************/
 /* enums */
 typedef enum {					/* symbol table entry record type */
 	unknown, program, integer, real, 
 	array, function, procedure
 } r_type;					
+/**********************/
 
 
-/* structs */
+/* struct declarations */
 typedef struct i_rinfo {			/* type integer: record info */
 	int e_init;				// entry initialized state ( 0: false, 1: true )
 	int e_value;				// TODO: pointer to activation record
@@ -72,7 +82,7 @@ typedef struct s_table {			/* scope */
 } s_table;
 
 
-/* prototypes */
+/* function prototypes */
 r_ptr *make_integer_record( );						/* allocates record struct for type : integer */
 
 r_ptr *make_real_record( );						/* allocates record struct for type : real */

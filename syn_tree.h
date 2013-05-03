@@ -2,16 +2,9 @@
  * Compilers - Dragon
  * module: syntax tree
  */
- 
+
 #ifndef SYN_TREE_H
 #define SYN_TREE_H
-
-
-/* includes */
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
-#include "sym_table.h"
 
 
 /* struct declarations */
@@ -21,14 +14,32 @@ typedef struct statement_n statement_n;
 typedef struct program_n program_n;
 
 
+/* unions */
+typedef union {					/* plugs into yylval union for tree construction in yacc file */
+	program_n *program;
+	statement_n *statement;
+	comp_n *comp;
+	ident_n *ident;
+} n_ptr;
+
+
+/* includes */
+#include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
+#include "sym_table.h"
+
+
+/**********************/
 /* enums */
 typedef enum {
 	inum, rnum, assignop, ident, addop, waddop, mulop, wmulop, relop,
 	statement, ifs, thens, elses
 } c_type;
+/**********************/
 
 
-/* structs */
+/* struct definitions */
 typedef struct ident_n {			/* tree node: ident */
 	t_entry *e_ptr;				// symbol table entry
 	struct ident_n *n_ident;		// next ident node
@@ -65,16 +76,7 @@ typedef struct program_n {			/* tree node: program */
 } program_n;
 
 
-/* unions */
-typedef union {					/* plugs into yylval union for tree construction in yacc file */
-	program_n *program;
-	statement_n *statement;
-	comp_n *comp;
-	ident_n *ident;
-} n_ptr;
-
-
-/* prototypes */
+/* function prototypes */
 program_n *make_program( ident_n *p_name, ident_n *i_list );		/* constructor: program */
 
 statement_n *make_statement( comp_n *root, statement_n *n_statement );	/* constructor: statement */
