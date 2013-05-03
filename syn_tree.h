@@ -31,11 +31,11 @@ typedef union {					/* plugs into yylval union for tree construction in yacc fil
 #include "y.tab.h"
 
 /**********************/
-/* enums */
-typedef enum {
-	inum, rnum, assignop, ident, addop, waddop, mulop, wmulop, relop,
-	statement, ifs, thens, elses
-} c_type;
+///* enums */
+//typedef enum {
+//	inum, rnum, assignop, ident, addop, waddop, mulop, wmulop, relop,
+//	statement, ifs, thens, elses
+//} c_type;
 /**********************/
 
 
@@ -46,7 +46,7 @@ typedef struct ident_n {			/* tree node: ident */
 } ident_n;
 
 typedef struct comp_n {				/* tree node: statement composition */
-	c_type type;				// type of composition node, indicates what union ptr to use
+	int type;				// type of composition node, indicates what union ptr to use
 	int index;				// used for arrays ( INIT: -1 )
 	int l_not;				// logical not ( INIT 0: false, 1: true )
 	int u_minus;				// unary minus ( INIT 0: false, 1: true )
@@ -81,7 +81,7 @@ program_n *make_program( ident_n *p_name, ident_n *i_list );		/* constructor: pr
 
 statement_n *make_statement( comp_n *root, statement_n *n_statement );	/* constructor: statement */
 
-comp_n *make_comp( c_type type, comp_n *left, comp_n *right );		/* constructor: composition */
+comp_n *make_comp( int type, comp_n *left, comp_n *right );		/* constructor: composition */
 
 ident_n *make_ident( t_entry *e_ptr, ident_n *n_ident );		/* constructor: ident */
 

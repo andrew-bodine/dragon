@@ -36,7 +36,7 @@ statement_n *make_statement( comp_n *root, statement_n *n_statement ) {
 	
 	return ptr;
 }
-comp_n *make_comp( c_type type, comp_n *left, comp_n *right ) {
+comp_n *make_comp( int type, comp_n *left, comp_n *right ) {
 	comp_n *ptr;
 	
 	/* allocate/assert memory */
@@ -140,35 +140,35 @@ void print_comp( comp_n *ptr, int spaces ) {
 		fprintf( stderr, " " );
 		
 	switch( ptr->type ) {
-		case statement:
+		case _STATEMENT_:
 			fprintf( stderr, "\n" );
 			print_statement( ptr->attr.statement, spaces + 16 );
 			break;
-		case assignop:
+		case _ASSIGNOP_:
 			fprintf( stderr, "[ASSIGNOP]" );
 			break;
-		case relop:
+		case _RELOP_:
 			fprintf( stderr, "[RELOP:%s]", ptr->attr.woval );
 			break;
-		case waddop:
+		case _WADDOP_:
 			fprintf( stderr, "[ADDOP:%s]", ptr->attr.woval );
 			break;
-		case addop:
+		case _ADDOP_:
 			fprintf( stderr, "[ADDOP:%c]", ( char )ptr->attr.ival );
 			break;
-		case wmulop:
+		case _WMULOP_:
 			fprintf( stderr, "[MULOP:%s]", ptr->attr.woval );
 			break;
-		case mulop:
+		case _MULOP_:
 			fprintf( stderr, "[MULOP:%c]", ( char )ptr->attr.ival );
 			break;
-		case inum:
+		case _INTEGER_:
 			fprintf( stderr, "[INUM:%d|%d|%d|%d]", ptr->attr.ival, ptr->index, ptr->l_not, ptr->u_minus );
 			break;
-		case rnum:
+		case _REAL_:
 			fprintf( stderr, "[RNUM:%f|%d|%d|%d]", ptr->attr.rval, ptr->index, ptr->l_not, ptr->u_minus );
 			break;
-		case ident:
+		case _IDENT_:
 			fprintf( stderr, "[IDENT:%s|%d|%d|%d]", ptr->attr.ident->e_ptr->e_symbol, ptr->index, ptr->l_not, ptr->u_minus );
 			break;
 		default:

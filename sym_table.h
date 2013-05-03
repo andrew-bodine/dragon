@@ -28,15 +28,6 @@ typedef struct s_table s_table;
 #define TABLE_SIZE 211
 
 
-/**********************/
-/* enums */
-//typedef enum {					/* symbol table entry record type */
-//	unknown, program, integer, real, 
-//	array, function, procedure
-//} r_type;					
-/**********************/
-
-
 /* struct declarations */
 typedef struct i_rinfo {			/* type integer: record info */
 	int e_init;				// entry initialized state ( 0: false, 1: true )

@@ -54,6 +54,7 @@ void yyerror( char *s );
 %token _END_		/* ends a block */
 %token _FUNCTION_	/* starts a function (returns values, have no side-effects) declaration */
 %token _PROCEDURE_	/* starts a procedure (returns no values, may have side-effects) declaration */
+%token _STATEMENT_	/* starts a statement */
 %token _IF_		/* starts an IF statement */
 %token _THEN_		/* part of an IF statement */
 %token _ELSE_		/* starts the ELSE part of an IF-THEN-ELSE statement */
@@ -227,12 +228,12 @@ statement_list		: statement								{	$$.statement = make_statement( $1.comp, NUL
 			| statement ';' statement_list						{	$$.statement = make_statement( $1.comp, $3.statement ); }
 			;
 
-statement		: variable _ASSIGNOP_ expression					{	$$.comp = make_comp( assignop, $1.comp, $3.comp ); }
+statement		: variable _ASSIGNOP_ expression					{	$$.comp = make_comp( _ASSIGNOP_, $1.comp, $3.comp ); }
 
 			| procedure_statement							{}
 
 			| compound_statement							{
-													$$.comp = make_comp( statement, NULL, NULL );
+													$$.comp = make_comp( _STATEMENT_, NULL, NULL );
 													$$.comp->attr.statement = $1.statement;
 												}
 
@@ -249,7 +250,7 @@ variable		: _IDENT_								{
 														e_ptr = insert_entry( s_stack, $1 );
 														install_unknown_record( e_ptr );
 													}
-													$$.comp = make_comp( ident, NULL, NULL );
+													$$.comp = make_comp( _IDENT_, NULL, NULL );
 													$$.comp->attr.ident = make_ident( e_ptr, NULL );
 												}
 
@@ -267,23 +268,23 @@ variable		: _IDENT_								{
 													}
 													/* check index type against type of array */
 													else if( ( e_ptr->e_record->record.a_info->a_type == _INTEGER_ &&
-														   $3.comp->type != inum ) || ( $3.comp->type != rnum &&
+														   $3.comp->type != _INTEGER_ ) || ( $3.comp->type != _REAL_ &&
 														   e_ptr->e_record->record.a_info->a_type == _REAL_ ) ) {
 														fprintf( stderr, "ERROR: accessing an array with invalid index type\n" );
 														exit( -1 );
 													}
 													/* check index against bounds of array */
-													if( $3.comp->type == inum && ( $3.comp->attr.ival < 0 || 
+													if( $3.comp->type == _INTEGER_ && ( $3.comp->attr.ival < 0 || 
 														$3.comp->attr.ival >= e_ptr->e_record->record.a_info->a_size ) ) {
 														fprintf( stderr, "ERROR: index out of array bounds\n" );
 														exit( -1 );
 													}
-													else if( $3.comp->type == rnum && ( $3.comp->attr.rval < 0 || 
+													else if( $3.comp->type == _REAL_ && ( $3.comp->attr.rval < 0 || 
 														$3.comp->attr.rval >= e_ptr->e_record->record.a_info->a_size ) ) {
 														fprintf( stderr, "ERROR: index out of array bounds\n" );
 														exit( -1 );
 													}
-													$$.comp = make_comp( ident, NULL, NULL );
+													$$.comp = make_comp( _IDENT_, NULL, NULL );
 													$$.comp->attr.ident = make_ident( e_ptr, NULL );
 													$$.comp->index = $3.comp->attr.ival;
 												}
@@ -302,7 +303,7 @@ expression_list		: expression								{}
 expression		: simple_expression							{	$$.comp = $1.comp; }
 
 			| simple_expression _RELOP_ simple_expression				{
-													$$.comp = make_comp( relop, $1.comp, $3.comp );
+													$$.comp = make_comp( _RELOP_, $1.comp, $3.comp );
 													$$.comp->attr.woval = $2;
 												}
 			;
@@ -316,12 +317,12 @@ simple_expression	: term									{	$$.comp = $1.comp; }
 												}
 
 			| simple_expression _WADDOP_ term					{
-													$$.comp = make_comp( waddop, $1.comp, $3.comp );
+													$$.comp = make_comp( _WADDOP_, $1.comp, $3.comp );
 													$$.comp->attr.woval = $2;
 												}
 
 			| simple_expression _ADDOP_ term					{	
-													$$.comp = make_comp( addop, $1.comp, $3.comp );
+													$$.comp = make_comp( _ADDOP_, $1.comp, $3.comp );
 													$$.comp->attr.oval = $2;
 												}
 			;
@@ -329,11 +330,11 @@ simple_expression	: term									{	$$.comp = $1.comp; }
 term			: factor								{	$$.comp = $1.comp; }
 
 		 	| term _MULOP_ factor							{
-		 											$$.comp = make_comp( mulop, $1.comp, $3.comp );
+		 											$$.comp = make_comp( _MULOP_, $1.comp, $3.comp );
 		 											$$.comp->attr.oval = $2;
 		 										}
 		 	| term _WMULOP_ factor							{
-		 											$$.comp = make_comp( wmulop, $1.comp, $3.comp );
+		 											$$.comp = make_comp( _WMULOP_, $1.comp, $3.comp );
 		 											$$.comp->attr.woval = $2;
 		 										}
 			;
@@ -343,12 +344,12 @@ factor			: variable								{	$$.comp = $1.comp; }
 		   	| _IDENT_ '(' expression_list ')'					{}
 
 			| _INUMBER_								{
-													$$.comp = make_comp( inum, NULL, NULL );
+													$$.comp = make_comp( _INTEGER_, NULL, NULL );
 													$$.comp->attr.ival = $1;
 												}
 
 			| _RNUMBER_								{
-													$$.comp = make_comp( rnum, NULL, NULL );
+													$$.comp = make_comp( _REAL_, NULL, NULL );
 													$$.comp->attr.rval = $1;
 												}
 
