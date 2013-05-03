@@ -30,10 +30,10 @@ typedef struct s_table s_table;
 
 /**********************/
 /* enums */
-typedef enum {					/* symbol table entry record type */
-	unknown, program, integer, real, 
-	array, function, procedure
-} r_type;					
+//typedef enum {					/* symbol table entry record type */
+//	unknown, program, integer, real, 
+//	array, function, procedure
+//} r_type;					
 /**********************/
 
 
@@ -51,7 +51,7 @@ typedef struct r_rinfo {			/* type real: record info */
 } r_rinfo;
 
 typedef struct a_rinfo {			/* type array: record info */
-	r_type a_type;				// type of array members ( integer | real )
+	int a_type;				// type of array members ( integer | real )
 	int a_size;				// number of elements in array
 	union {
 		int *i_ptr;
@@ -63,7 +63,7 @@ typedef struct a_rinfo {			/* type array: record info */
 // TODO: probably need more structs :(
 
 typedef struct r_ptr {				// generic record accessor for symbol table entry
-	r_type e_rtype;				/* entry info record type */
+	int e_rtype;				/* entry info record type */
 	union {
 		i_rinfo *i_info;
 		r_rinfo *r_info;

@@ -14,7 +14,7 @@ r_ptr *make_integer_record( ) {
 	
 	ptr = ( r_ptr * )malloc( sizeof( r_ptr ) );
 	assert( ptr != NULL );
-	ptr->e_rtype = integer;
+	ptr->e_rtype = _INTEGER_;
 	
 	ptr->record.i_info = ( i_rinfo * )malloc( sizeof( i_rinfo ) );
 	assert( ptr->record.i_info != NULL );
@@ -28,7 +28,7 @@ r_ptr *make_real_record( ) {
 	
 	ptr = ( r_ptr * )malloc( sizeof( r_ptr ) );
 	assert( ptr != NULL );
-	ptr->e_rtype = real;
+	ptr->e_rtype = _REAL_;
 	
 	ptr->record.r_info = ( r_rinfo * )malloc( sizeof( r_rinfo ) );
 	assert( ptr->record.r_info != NULL );
@@ -43,7 +43,7 @@ r_ptr *make_array_record( r_ptr *temp, int a_start, int a_stop ) {
 
 	ptr = ( r_ptr * )malloc( sizeof( r_ptr ) );
 	assert( ptr != NULL );
-	ptr->e_rtype = array;
+	ptr->e_rtype = _ARRAY_;
 	
 	ptr->record.a_info = ( a_rinfo * )malloc( sizeof( a_rinfo ) );
 	assert( ptr->record.a_info != NULL );
@@ -52,14 +52,14 @@ r_ptr *make_array_record( r_ptr *temp, int a_start, int a_stop ) {
 	ptr->record.a_info->a_size = ( a_stop - a_start + 1 );
 	
 	switch( ptr->record.a_info->a_type ) {
-		case integer:
+		case _INTEGER_:
 			ptr->record.a_info->e_value.i_ptr = ( int * )malloc( sizeof( int ) * ptr->record.a_info->a_size );
 			for( i = 0; i < ptr->record.a_info->a_size; i++ ) {
 				ptr->record.a_info->e_value.i_ptr[ i ] = a_start;
 				a_start++;
 			}
 			break;
-		case real:
+		case _REAL_:
 			ptr->record.a_info->e_value.r_ptr = ( float * )malloc( sizeof( float ) * ptr->record.a_info->a_size );
 			for( i = 0; i < ptr->record.a_info->a_size; i++ ) {
 				ptr->record.a_info->e_value.r_ptr[ i ] = ( float )a_start;
@@ -76,23 +76,23 @@ r_ptr *make_array_record( r_ptr *temp, int a_start, int a_stop ) {
 void free_record( r_ptr *ptr ) {
 	if( ptr == NULL ) return;
 	switch( ptr->e_rtype ) {
-			case integer:
+			case _INTEGER_:
 				free( ptr->record.i_info );
 				break;
-			case real:
+			case _REAL_:
 				free( ptr->record.r_info );
 				break;
 			//TODO
-			case array:
-				if( ptr->record.a_info->a_type == integer )
+			case _ARRAY_:
+				if( ptr->record.a_info->a_type == _INTEGER_ )
 					free( ptr->record.a_info->e_value.i_ptr );
 				else
 					free( ptr->record.a_info->e_value.r_ptr );
 				free( ptr->record.a_info );
 				break;
-			case function:
+			case _FUNCTION_:
 				break;
-			case procedure:
+			case _PROCEDURE_:
 				break;
 			default:
 				break;
@@ -104,7 +104,7 @@ void install_program_record( t_entry *ptr ) {
 	
 	rptr = ( r_ptr * )malloc( sizeof( r_ptr ) );
 	assert( rptr != NULL );
-	rptr->e_rtype = program;
+	rptr->e_rtype = _PROGRAM_;
 	ptr->e_record = rptr;
 }
 void install_unknown_record( t_entry *ptr ) {
@@ -112,7 +112,7 @@ void install_unknown_record( t_entry *ptr ) {
 	
 	rptr = ( r_ptr * )malloc( sizeof( r_ptr ) );
 	assert( rptr != NULL );
-	rptr->e_rtype = unknown;
+	rptr->e_rtype = _IDENT_;
 	ptr->e_record = rptr;
 }
 void install_entry_record( t_entry *ptr, r_ptr *record ) {
@@ -230,19 +230,19 @@ int hash_pjw( const void *t_key, int t_size ) {
 char *type_to_str( t_entry *ptr ) {
 	if( ptr->e_record == NULL ) return "NULL";
 	switch( ptr->e_record->e_rtype ) {
-		case unknown:
+		case _IDENT_:
 			return "UNKN";
-		case program:
+		case _PROGRAM_:
 			return "PROG";
-		case integer:
+		case _INTEGER_:
 			return "INT";
-		case real:
+		case _REAL_:
 			return "REAL";
-		case array:
+		case _ARRAY_:
 			return "ARRAY";
-		case function:
+		case _FUNCTION_:
 			return "FUNC";
-		case procedure:
+		case _PROCEDURE_:
 			return "PROC";
 		default:
 			return "";
@@ -262,19 +262,19 @@ void print_sstack( s_table *s_stack ) {
 					while( ptr != NULL ) {
 						fprintf( stderr, "[%s|%s", ptr->e_symbol, type_to_str( ptr ) );
 						switch( ptr->e_record->e_rtype ) {
-							case integer:
+							case _INTEGER_:
 								fprintf( stderr, "|%d]->", ptr->e_record->record.i_info->e_init );
 								break;
-							case real:
+							case _REAL_:
 								fprintf( stderr, "|%d]->", ptr->e_record->record.r_info->e_init );
 								break;
-							case array:
-								if( ptr->e_record->record.a_info->a_type == integer ) {
+							case _ARRAY_:
+								if( ptr->e_record->record.a_info->a_type == _INTEGER_ ) {
 									fprintf( stderr, "|%d|%d|%d]->", ptr->e_record->record.a_info->a_size,
 										ptr->e_record->record.a_info->e_value.i_ptr[ 0 ],
 										ptr->e_record->record.a_info->e_value.i_ptr[ ptr->e_record->record.a_info->a_size - 1 ] );
 								}
-								else if( ptr->e_record->record.a_info->a_type == real ) {
+								else if( ptr->e_record->record.a_info->a_type == _REAL_ ) {
 									fprintf( stderr, "|%d|%d|%d]->", ptr->e_record->record.a_info->a_size,
 										ptr->e_record->record.a_info->e_value.r_ptr[ 0 ],
 										ptr->e_record->record.a_info->e_value.r_ptr[ ptr->e_record->record.a_info->a_size - 1 ] );

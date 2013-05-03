@@ -261,14 +261,14 @@ variable		: _IDENT_								{
 														exit( -1 );
 													}
 													/* check that symbol is an array */
-													else if( e_ptr->e_record->e_rtype != array ) {
+													else if( e_ptr->e_record->e_rtype != _ARRAY_ ) {
 														fprintf( stderr, "ERROR: accessing an element as an array that isn't an array\n" );
 														exit( -1 );
 													}
 													/* check index type against type of array */
-													else if( ( e_ptr->e_record->record.a_info->a_type == integer &&
+													else if( ( e_ptr->e_record->record.a_info->a_type == _INTEGER_ &&
 														   $3.comp->type != inum ) || ( $3.comp->type != rnum &&
-														   e_ptr->e_record->record.a_info->a_type == real ) ) {
+														   e_ptr->e_record->record.a_info->a_type == _REAL_ ) ) {
 														fprintf( stderr, "ERROR: accessing an array with invalid index type\n" );
 														exit( -1 );
 													}

@@ -99,8 +99,6 @@ void free_ident( ident_n *ptr ) {
 }
 void print_program( program_n *ptr ) {
 	
-	//fprintf( stderr, "%d\n", _INTEGER_ );
-	
 	/* program: name */
 	fprintf( stderr, "\n" );
 	fprintf( stderr, "PROGRAM: \n" );
