@@ -2,9 +2,9 @@
 
 
 program tree( input, output );
-	{var a,b: integer;}
-	{var c,d: real;}
-	{var p: array[ 5 .. 13 ] of integer;}
+	var a,b: integer;
+	var c,d: real;
+	var p, q: array[ 5 .. 13 ] of integer;
 begin
 end.
 

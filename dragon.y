@@ -100,7 +100,7 @@ program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'
 													t_ptr.program = make_program( make_ident( e_ptr, NULL ), $4.ident );
 													
 													/* add declarations */
-													//t_ptr.program->p_declarations = $7.ident;
+													t_ptr.program->p_declarations = $7.ident;
 													
 													// TODO
 												}
@@ -116,70 +116,48 @@ program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'
 
 identifier_list		: _IDENT_								{
 													e_ptr = find_entry( s_stack, $1 );
-													if( e_ptr == NULL )
+													if( e_ptr == NULL ) {
 														e_ptr = insert_entry( s_stack, $1 );
-													install_unknown_record( e_ptr );
+														install_unknown_record( e_ptr );
+													}
 													$$.ident = make_ident( e_ptr, NULL );
 												}
 		  	| _IDENT_ ',' identifier_list						{
 													e_ptr = find_entry( s_stack, $1 );
-													if( e_ptr == NULL )
+													if( e_ptr == NULL ) {
 														e_ptr = insert_entry( s_stack, $1 );
-													install_unknown_record( e_ptr );
+														install_unknown_record( e_ptr );
+													}
 													$$.ident = make_ident( e_ptr, $3.ident );
 												}
 			;
 
 declarations		: _VAR_ identifier_list ':' type ';' declarations			{
-/*													$$.ident = $2.ident;*/
-/*													t_ptr.ident = $$.ident;*/
-/*													*/
-/*													//*/
-/*													r_ptr *temp = $4;*/
-/*													*/
-/*													while( 1 ) {*/
-/*														switch( temp->e_rtype ) {*/
-/*															case integer:*/
-/*																install_integer_record( t_ptr.ident->e_ptr, temp->record.i_info );*/
-/*																break;*/
-/*															case real:*/
-/*																install_real_record( t_ptr.ident->e_ptr, temp->record.r_info );*/
-/*																break;*/
-/*															case array:*/
-/*																fprintf( stderr, "we has array :)\n" );*/
-/*																//install_array_record( t_ptr.ident->e_ptr, $4->record.a_info );*/
-/*																break;*/
-/*															default:*/
-/*																fprintf( stderr, "type not supported\n" );*/
-/*														}*/
-/*														*/
-/*														if( t_ptr.ident->n_ident != NULL )*/
-/*															t_ptr.ident = t_ptr.ident->n_ident;*/
-/*														else*/
-/*															break;*/
-/*													}*/
-/*													t_ptr.ident->n_ident = $6.ident;*/
+													$$.ident = $2.ident;
+													t_ptr.ident = $$.ident;
+													
+													while( 1 ) {
+														
+														/* free temporary record installed previously */
+														free_record( t_ptr.ident->e_ptr->e_record );
+														
+														install_entry_record( t_ptr.ident->e_ptr, $4 );
+														if( t_ptr.ident->n_ident != NULL )
+															t_ptr.ident = t_ptr.ident->n_ident;
+														else
+															break;
+													}
+													t_ptr.ident->n_ident = $6.ident;
 												}
-	       		| /* epsilon */								{	/*$$.ident = NULL;*/ }
+	       		| /* epsilon */								{	$$.ident = NULL; }
 			;
 
-type			: standard_type								{	/*$$ = $1;*/ }
-	   		| _ARRAY_ '[' _NUMBER_ _SPAN_ _NUMBER_ ']' _OF_ standard_type		{
-/*	   												$$->e_rtype = array;*/
-/*	   												$$->record.a_info = make_array_record( $8, $3, $5 );*/
-	   											}
+type			: standard_type								{	$$ = $1; }
+	   		| _ARRAY_ '[' _NUMBER_ _SPAN_ _NUMBER_ ']' _OF_ standard_type		{	$$ = make_array_record( $8, $3, $5 ); }
 			;
 
-standard_type		: _INTEGER_								{	
-/*													fprintf( stderr, "here :)" );*/
-/*													//$$ = ( r_ptr * )malloc( sizeof( r_ptr ) );*/
-/*													$$->e_rtype = integer; */
-/*													$$->record.i_info = make_integer_record( );*/
-												}
-			| _REAL_								{	
-/*													$$->e_rtype = real;*/
-/*													$$->record.r_info = make_real_record( );*/
-												}
+standard_type		: _INTEGER_								{	$$ = make_integer_record( ); }
+			| _REAL_								{	$$ = make_real_record( ); }
 			;
 
 subprogram_declarations	: subprogram_declarations subprogram_declaration ';'			{}
