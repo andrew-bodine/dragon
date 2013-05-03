@@ -2,11 +2,19 @@
 
 
 program tree( input, output );
-	{var a,b: integer;
-	var c,d: real;}
-	var p, q: array[ 5 .. 13 ] of integer;
+	var a,b: integer;
+	{var c,d: real;
+	var p: array[ 5 .. 13 ] of integer;}
+	
+	function gcd: integer;
+	begin
+	end;
 begin
-	p[ 6 ] := q[ 7 ]
+	if a < 4 then 
+		a := ( 4 <> 2 )
+	else if b > 5 then
+		b := 5
+	else b := 3
 end.
 
 

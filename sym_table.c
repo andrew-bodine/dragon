@@ -73,6 +73,24 @@ r_ptr *make_array_record( r_ptr *temp, int a_start, int a_stop ) {
 	
 	return ptr;
 }
+r_ptr *make_function_record( int r_type, ident_n *a_ptr ) {
+	r_ptr *ptr;
+	
+	ptr = ( r_ptr * )malloc( sizeof( r_ptr ) );
+	assert( ptr != NULL );
+	ptr->e_rtype = _FUNCTION_;
+	
+	ptr->record.f_info = ( f_rinfo * )malloc( sizeof( f_rinfo ) );
+	assert( ptr->record.f_info != NULL );
+	ptr->record.f_info->r_type = r_type;
+	if( r_type == _INTEGER_ )
+		ptr->record.f_info->rec.ival = 0;
+	else
+		ptr->record.f_info->rec.fval = ( float )0;
+	ptr->record.f_info->a_ptr = a_ptr;
+	
+	return ptr;
+}
 void free_record( r_ptr *ptr ) {
 	if( ptr == NULL ) return;
 	switch( ptr->e_rtype ) {
@@ -91,6 +109,7 @@ void free_record( r_ptr *ptr ) {
 				free( ptr->record.a_info );
 				break;
 			case _FUNCTION_:
+				free( ptr->record.f_info );
 				break;
 			case _PROCEDURE_:
 				break;
@@ -282,6 +301,9 @@ void print_sstack( s_table *s_stack ) {
 								else {
 									fprintf( stderr, "unrecognized array type in symbol table\n" );
 								}
+								break;
+							case _FUNCTION_:
+								// TODO
 								break;
 							// TODO
 							default:

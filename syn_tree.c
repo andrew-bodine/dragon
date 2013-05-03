@@ -7,7 +7,7 @@
 #include "syn_tree.h"
 
 /* definitions */
-program_n *make_program( ident_n *p_name, ident_n *i_list ) {
+program_n *make_program( int type, ident_n *p_name, ident_n *i_list ) {
 	program_n *ptr;
 
 	/* allocate/assert memory */
@@ -15,11 +15,13 @@ program_n *make_program( ident_n *p_name, ident_n *i_list ) {
 	assert( ptr != NULL );
 
 	/* set program info */
+	ptr->type = type;
 	ptr->p_name = p_name;
 	ptr->p_ilist = i_list;
 	ptr->p_declarations = NULL;
-	// TODO
+	ptr->p_sprograms = NULL;
 	ptr->p_statements = NULL;
+	ptr->p_nprogram = NULL;
 
 	return ptr;
 }
@@ -71,7 +73,7 @@ void free_program( program_n *ptr ) {
 	free_ident( ptr->p_ilist );
 	if( ptr->p_declarations != NULL )
 		free_ident( ptr->p_declarations );
-	// TODO
+	// TODO: need to rework this function for freeing { programs, functions, & procedures }
 	free( ptr );
 }
 void free_statement( statement_n *ptr ) {
@@ -99,31 +101,48 @@ void free_ident( ident_n *ptr ) {
 }
 void print_program( program_n *ptr ) {
 	
-	/* program: name */
-	fprintf( stderr, "\n" );
-	fprintf( stderr, "PROGRAM: \n" );
-	fprintf( stderr, "\tNAME: " );
-	print_ident( ptr->p_name );
+	if( ptr->type == _PROGRAM_ ) {
+	
+		/* program: name */
+		fprintf( stderr, "\n" );
+		fprintf( stderr, "PROGRAM: \n" );
+		fprintf( stderr, "\tNAME: " );
+		print_ident( ptr->p_name );
 
-	/* program: input args */
-	fprintf( stderr, "\tARGS: " );
-	print_ident( ptr->p_ilist );
+		/* program: input args */
+		fprintf( stderr, "\tARGS: " );
+		print_ident( ptr->p_ilist );
 
-	/* program: declarations */
-	fprintf( stderr, "\tDECS: " );
-	if( ptr->p_declarations == NULL )
-		fprintf( stderr, "NONE\n" );
-	else
-		print_ident( ptr->p_declarations );
+		/* program: declarations */
+		fprintf( stderr, "\tDECS: " );
+		if( ptr->p_declarations == NULL )
+			fprintf( stderr, "NONE\n" );
+		else
+			print_ident( ptr->p_declarations );
 
-	/* program: statements */
-	fprintf( stderr, "\tSTTS: \n" );
-	if( ptr->p_statements == NULL )
-		fprintf( stderr, "NONE\n" );
-	else
-		print_statement( ptr->p_statements, 16 );
+		/* program: sub programs */
+		fprintf( stderr, "\tSPGS: " );
+		if( ptr->p_sprograms == NULL )
+			fprintf( stderr, "NONE\n" );
+		else {
+			fprintf( stderr, "\n" );
+			// TODO	
+		}
 
-	fprintf( stderr, "\n" );
+		/* program: statements */
+		fprintf( stderr, "\tSTTS: " );
+		if( ptr->p_statements == NULL )
+			fprintf( stderr, "NONE\n" );
+		else {
+			fprintf( stderr, "\n" );
+			print_statement( ptr->p_statements, 16 );
+		}
+
+		fprintf( stderr, "\n" );
+	}
+	else if( ptr->type == _FUNCTION_ ) {
+		fprintf( stderr, "FUNCTIONS :)" );
+	}
 }
 void print_statement( statement_n *ptr, int spaces ) {
 	while( ptr != NULL ) {

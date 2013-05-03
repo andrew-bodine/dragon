@@ -16,8 +16,5 @@
 *.out
 *.app
 
-# todo
-todo
-
-# test drivers
-driver.c
+# docs
+haiku*

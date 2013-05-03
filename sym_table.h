@@ -11,6 +11,7 @@
 typedef struct i_rinfo i_rinfo;
 typedef struct r_rinfo r_rinfo;
 typedef struct a_rinfo a_rinfo;
+typedef struct f_rinfo f_rinfo;
 typedef struct r_ptr r_ptr;
 typedef struct t_entry t_entry;
 typedef struct s_table s_table;
@@ -22,6 +23,7 @@ typedef struct s_table s_table;
 #include <assert.h>
 #include <string.h>
 #include "y.tab.h"
+#include "syn_tree.h"
 
 
 /* constants */
@@ -32,13 +34,11 @@ typedef struct s_table s_table;
 typedef struct i_rinfo {			/* type integer: record info */
 	int e_init;				// entry initialized state ( 0: false, 1: true )
 	int e_value;				// TODO: pointer to activation record
-	// TODO: *
 } i_rinfo;
 
 typedef struct r_rinfo {			/* type real: record info */
 	int e_init;				// entry initialized state ( 0: false, 1: true )
 	float e_value;				// TODO: pointer to activation record
-	// TODO: *
 } r_rinfo;
 
 typedef struct a_rinfo {			/* type array: record info */
@@ -48,8 +48,16 @@ typedef struct a_rinfo {			/* type array: record info */
 		int *i_ptr;
 		float *r_ptr;
 	} e_value;				// TODO: pointer to activation record
-	// TODO: *
 } a_rinfo;
+
+typedef struct f_rinfo {			/* type function: record info */
+	int r_type;				// function return type
+	union {
+		int ival;
+		float fval;
+	} rec;					// recursion value container
+	ident_n *a_ptr;				// function arguments
+} f_rinfo;
 
 // TODO: probably need more structs :(
 
@@ -59,6 +67,7 @@ typedef struct r_ptr {				// generic record accessor for symbol table entry
 		i_rinfo *i_info;
 		r_rinfo *r_info;
 		a_rinfo *a_info;
+		f_rinfo *f_info;
 		// TODO: *
 	} record;
 } r_ptr;
@@ -81,6 +90,8 @@ r_ptr *make_integer_record( );						/* allocates record struct for type : intege
 r_ptr *make_real_record( );						/* allocates record struct for type : real */
 
 r_ptr *make_array_record( r_ptr *temp, int a_start, int a_stop );	/* allocates record struct for type : array */
+
+r_ptr *make_function_record( int r_type, ident_n *a_ptr );		/* allocates record struct for type : function */
 
 void free_record( r_ptr *ptr );						/* destructor for records of all types */
 

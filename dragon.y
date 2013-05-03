@@ -101,8 +101,8 @@ void yyerror( char *s );
 
 
 /* types */
-%type <tval> program identifier_list declarations compound_statement 
-%type <tval> optional_statements statement_list statement variable expression simple_expression term factor
+%type <tval> program identifier_list declarations compound_statement subprogram_declarations subprogram_declaration subprogram_head
+%type <tval> optional_statements statement_list statement variable expression simple_expression term factor parameter_list arguments
 %type <record> type standard_type
 
 
@@ -120,13 +120,13 @@ program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'
 													install_program_record( e_ptr );
 																										
 													/* initiate program tree construction */
-													t_ptr.program = make_program( make_ident( e_ptr, NULL ), $4.ident );
+													t_ptr.program = make_program( _PROGRAM_, make_ident( e_ptr, NULL ), $4.ident );
 													
 													/* add declarations */
 													t_ptr.program->p_declarations = $7.ident;
 													
 													/* add sub programs */
-													// TODO
+													t_ptr.program->p_sprograms = $8.program;
 													
 													/* add statements */
 													t_ptr.program->p_statements = $9.statement;
@@ -189,30 +189,76 @@ standard_type		: _INTEGER_								{	$$ = make_integer_record( ); }
 			| _REAL_								{	$$ = make_real_record( ); }
 			;
 
-subprogram_declarations	: subprogram_declarations subprogram_declaration ';'			{}
+subprogram_declarations	: subprogram_declaration ';' subprogram_declarations			{	
+													$$.program = $1.program;
+													$$.program->p_nprogram = $3.program;
+												}
 
-			| /* epsilon */								{}
+			| /* epsilon */								{	$$.program = NULL; }
 			;
 
 subprogram_declaration	: subprogram_head
 			  declarations
 			  subprogram_declarations
-			  compound_statement							{}
+			  compound_statement							{	
+			  										$$.program = $1.program;
+			  										$$.program->p_declarations = $2.ident;
+			  										$$.program->p_sprograms = $3.program;
+			  										$$.program->p_statements = $4.statement;
+			  									}
 			;
 
-subprogram_head		: _FUNCTION_ _IDENT_ arguments ':' standard_type ';'			{}
+subprogram_head		: _FUNCTION_ _IDENT_ arguments ':' standard_type ';'			{
+													e_ptr = find_entry( s_stack, $2 );
+													if( e_ptr != NULL ) {
+														fprintf( stderr, "ERROR: declaring a function with previously declared symbol\n" );
+														exit( -1 );
+													}
+													e_ptr = insert_entry( s_stack, $2 );
+													install_entry_record( e_ptr, make_function_record( $5->e_rtype, $3.ident ) );
+													$$.program = make_program( _FUNCTION_, make_ident( e_ptr, NULL ), $3.ident );
+												}
 
 			| _PROCEDURE_ _IDENT_ arguments ';'					{}
 			;
 
-arguments		: '(' parameter_list ')'						{}
+arguments		: '(' parameter_list ')'						{	$$.ident = $2.ident; }
 
-			| /* epsilon */								{}
+			| /* epsilon */								{	$$.ident = NULL; }
 			;
 
-parameter_list		: identifier_list ':' type						{}
+parameter_list		: identifier_list ':' type						{
+													$$.ident = $1.ident;
+													t_ptr.ident = $$.ident;
+													while( 1 ) {
+														
+														/* free temporary record installed previously */
+														free_record( t_ptr.ident->e_ptr->e_record );
+														
+														install_entry_record( t_ptr.ident->e_ptr, $3 );
+														if( t_ptr.ident->n_ident != NULL )
+															t_ptr.ident = t_ptr.ident->n_ident;
+														else
+															break;
+													}
+												}
 
-			| parameter_list ';' identifier_list ':' type				{}
+			| identifier_list ':' type ';' parameter_list				{
+													$$.ident = $1.ident;
+													t_ptr.ident = $$.ident;
+													while( 1 ) {
+														
+														/* free temporary record installed previously */
+														free_record( t_ptr.ident->e_ptr->e_record );
+														
+														install_entry_record( t_ptr.ident->e_ptr, $3 );
+														if( t_ptr.ident->n_ident != NULL )
+															t_ptr.ident = t_ptr.ident->n_ident;
+														else
+															break;
+													}
+													t_ptr.ident->n_ident = $5.ident;
+												}
 			;
 
 compound_statement	: _BEGIN_ optional_statements _END_					{	$$.statement = $2.statement; }
@@ -375,6 +421,7 @@ void yyerror( char *s ) {
 }
 
 int main( void ) {
+	//system( "cat docs/haiku | cowsay -f dragon" );
 	s_stack = push_scope( s_stack );
 	yyparse( );
 	s_stack = pop_scope( s_stack );

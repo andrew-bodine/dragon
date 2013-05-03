@@ -60,16 +60,18 @@ typedef struct statement_n {			/* tree node: statement */
 } statement_n;
 
 typedef struct program_n {			/* tree node: program */
+	int type;				// program | function | procedure
 	ident_n *p_name;			// program name
 	ident_n *p_ilist;			// input arguments
 	ident_n *p_declarations;		// declarations
-	// TODO: sub_programs
+	struct program_n *p_sprograms;		// sub programs
 	statement_n *p_statements;		// statements
+	struct program_n *p_nprogram;		// next program
 } program_n;
 
 
 /* function prototypes */
-program_n *make_program( ident_n *p_name, ident_n *i_list );		/* constructor: program */
+program_n *make_program( int type, ident_n *p_name, ident_n *i_list );	/* constructor: program */
 
 statement_n *make_statement( comp_n *root, statement_n *n_statement );	/* constructor: statement */
 
