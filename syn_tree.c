@@ -45,6 +45,9 @@ comp_n *make_comp( c_type type, comp_n *left, comp_n *right ) {
 	
 	/* set composition info */
 	ptr->type = type;
+	ptr->index = -1;
+	ptr->l_not = 0;
+	ptr->u_minus = 0;
 	ptr->left = left;
 	ptr->right = right;
 	
@@ -140,14 +143,23 @@ void print_comp( comp_n *ptr, int spaces ) {
 		case assignop:
 			fprintf( stderr, "[ASSIGNOP]" );
 			break;
+		case wordop:
+			fprintf( stderr, "[WORDOP:%s]", ptr->attr.woval );
+			break;
+		case addop:
+			fprintf( stderr, "[ADDOP:%c]", ( char )ptr->attr.ival );
+			break;
+		case mulop:
+			fprintf( stderr, "[MULOP:%c]", ( char )ptr->attr.ival );
+			break;
 		case inum:
-			fprintf( stderr, "[INUM:%d]", ptr->attr.ival );
+			fprintf( stderr, "[INUM:%d|%d|%d|%d]", ptr->attr.ival, ptr->index, ptr->l_not, ptr->u_minus );
 			break;
 		case rnum:
-			fprintf( stderr, "[RNUM:%f]", ptr->attr.rval );
+			fprintf( stderr, "[RNUM:%f|%d|%d|%d]", ptr->attr.rval, ptr->index, ptr->l_not, ptr->u_minus );
 			break;
 		case ident:
-			fprintf( stderr, "[IDENT:%s]", ptr->attr.ident->e_ptr->e_symbol );
+			fprintf( stderr, "[IDENT:%s|%d|%d|%d]", ptr->attr.ident->e_ptr->e_symbol, ptr->index, ptr->l_not, ptr->u_minus );
 			break;
 		default:
 			fprintf( stderr, "[UNKNOWN]" );

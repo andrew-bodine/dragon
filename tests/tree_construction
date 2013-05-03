@@ -4,9 +4,9 @@
 program tree( input, output );
 	{var a,b: integer;
 	var c,d: real;}
-	var p, q: array[ 5 .. 13 ] of integer;
+	var p: array[ 5 .. 13 ] of integer;
 begin
-	p[ 5 ] := 3
+	p[ 4 ] := 4 or 2
 end.
 
 

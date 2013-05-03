@@ -85,8 +85,14 @@ assignop	:=
 "real"			{ return _REAL_; }
 
 {relop}			{ return _RELOP_; }
-{addop}			{ return _ADDOP_; }
-{mulop}			{ return _MULOP_; }
+{addop}			{
+				yylval.sval = strdup( yytext );
+				return _ADDOP_;
+			}
+{mulop}			{
+				yylval.ival = yytext[ 0 ];
+				return _MULOP_;
+			}
 {assignop}		{ return _ASSIGNOP_; }
 
 {terminal}		{ return yytext[ 0 ]; }

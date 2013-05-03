@@ -62,12 +62,12 @@ void yyerror( char *s );
 				>  : greater-than
 				>= : greater-or-equal
 			*/
-%token _ADDOP_		/* 
+%token <sval> _ADDOP_	/* 
 				+  : addition for both integer and real arguments
 				-  : subtraction for both integer and real arguments
 				or : logical OR
 			*/
-%token _MULOP_		/* 
+%token <ival> _MULOP_	/* 
 				*   : multiplication for both integer and real arguments
 				/   : division for both integer and real arguments
 				div : quotient in integer division
@@ -130,6 +130,7 @@ identifier_list		: _IDENT_								{
 													}
 													$$.ident = make_ident( e_ptr, NULL );
 												}
+
 		  	| _IDENT_ ',' identifier_list						{
 													e_ptr = find_entry( s_stack, $1 );
 													if( e_ptr == NULL ) {
@@ -157,18 +158,22 @@ declarations		: _VAR_ identifier_list ':' type ';' declarations			{
 													}
 													t_ptr.ident->n_ident = $6.ident;
 												}
+
 	       		| /* epsilon */								{	$$.ident = NULL; }
 			;
 
 type			: standard_type								{	$$ = $1; }
+
 	   		| _ARRAY_ '[' _INUMBER_ _SPAN_ _INUMBER_ ']' _OF_ standard_type		{	$$ = make_array_record( $8, $3, $5 ); }
 			;
 
 standard_type		: _INTEGER_								{	$$ = make_integer_record( ); }
+
 			| _REAL_								{	$$ = make_real_record( ); }
 			;
 
 subprogram_declarations	: subprogram_declarations subprogram_declaration ';'			{}
+
 			| /* epsilon */								{}
 			;
 
@@ -179,14 +184,17 @@ subprogram_declaration	: subprogram_head
 			;
 
 subprogram_head		: _FUNCTION_ _IDENT_ arguments ':' standard_type ';'			{}
+
 			| _PROCEDURE_ _IDENT_ arguments ';'					{}
 			;
 
 arguments		: '(' parameter_list ')'						{}
+
 			| /* epsilon */								{}
 			;
 
 parameter_list		: identifier_list ':' type						{}
+
 			| parameter_list ';' identifier_list ':' type				{}
 			;
 
@@ -194,18 +202,25 @@ compound_statement	: _BEGIN_ optional_statements _END_					{	$$ = $2; }
 			;
 
 optional_statements	: statement_list							{}
+
 			| /* epsilon */								{	$$.statement = NULL; }
 			;
 
 statement_list		: statement								{	$$.statement = make_statement( $1.comp, NULL ); }
+
 			| statement ';' statement_list						{	$$.statement = make_statement( $1.comp, $3.statement ); }
 			;
 
 statement		: variable _ASSIGNOP_ expression					{	$$.comp = make_comp( assignop, $1.comp, $3.comp ); }
+
 			| procedure_statement							{}
+
 			| compound_statement							{}
+
 			| _IF_ expression _THEN_ statement %prec _IF_THEN_			{}
+
 			| _IF_ expression _THEN_ statement _ELSE_ statement			{}
+
 			| _WHILE_ expression _DO_ statement					{}
 			;
 
@@ -218,6 +233,7 @@ variable		: _IDENT_								{
 													$$.comp = make_comp( ident, NULL, NULL );
 													$$.comp->attr.ident = make_ident( e_ptr, NULL );
 												}
+
 			| _IDENT_ '[' expression ']'						{
 													/* need to find symbol in the symbol table */
 													e_ptr = find_entry( s_stack, $1 );
@@ -255,42 +271,71 @@ variable		: _IDENT_								{
 			;
 
 procedure_statement	: _IDENT_								{}
+
 			| _IDENT_ '(' expression_list ')'					{}
 			;
 
 expression_list		: expression								{}
+
 			| expression_list ',' expression					{}
 			;
 
 expression		: simple_expression							{	$$.comp = $1.comp; }
+
 			| simple_expression _RELOP_ simple_expression				{}
 			;
 
 simple_expression	: term									{	$$.comp = $1.comp; }
-			| sign term								{}
-			| simple_expression _ADDOP_ term					{}
-			| simple_expression sign term						{}
+
+			| sign term								{	
+													$$.comp = $2.comp;
+													if( $1 == '-')
+														$$.comp->u_minus = 1;
+												}
+
+			| simple_expression _ADDOP_ term					{
+													$$.comp = make_comp( wordop, $1.comp, $3.comp );
+													$$.comp->attr.woval = $2;
+												}
+
+			| simple_expression sign term						{	
+													$$.comp = make_comp( addop, $1.comp, $3.comp );
+													$$.comp->attr.oval = $2;
+												}
 			;
 
 term			: factor								{	$$.comp = $1.comp; }
-		 	| term _MULOP_ factor							{}
+
+		 	| term _MULOP_ factor							{
+		 											$$.comp = make_comp( mulop, $1.comp, $3.comp );
+		 											$$.comp->attr.oval = $2;
+		 										}
 			;
 
-factor			: variable								{}
+factor			: variable								{	$$.comp = $1.comp; }
+
 		   	| _IDENT_ '(' expression_list ')'					{}
+
 			| _INUMBER_								{
 													$$.comp = make_comp( inum, NULL, NULL );
 													$$.comp->attr.ival = $1;
 												}
+
 			| _RNUMBER_								{
 													$$.comp = make_comp( rnum, NULL, NULL );
 													$$.comp->attr.rval = $1;
 												}
+
 			| '(' expression ')'							{	$$.comp = $2.comp; }
-			| _NOT_ factor								{}
+
+			| _NOT_ factor								{	
+													$$.comp = $2.comp;
+													$$.comp->l_not = 1;
+												}
 			;
 
 sign			: '+'									{ 	$$ = '+'; }
+
 		 	| '-'									{ 	$$ = '-'; }
 			;
 

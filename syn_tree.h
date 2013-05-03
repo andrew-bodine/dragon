@@ -16,7 +16,7 @@
 
 /* enums */
 typedef enum {
-	inum, rnum, assignop, ident, addop, relop, mulop
+	inum, rnum, assignop, ident, addop, relop, mulop, wordop
 } c_type;
 
 
@@ -28,12 +28,15 @@ typedef struct ident_n {			/* tree node: ident */
 
 typedef struct comp_n {				/* tree node: statement composition */
 	c_type type;				// type of composition node, indicates what union ptr to use
-	int index;				// used for arrays
+	int index;				// used for arrays ( INIT: -1 )
+	int l_not;				// logical not ( INIT 0: false, 1: true )
+	int u_minus;				// unary minus ( INIT 0: false, 1: true )
 	union {
-		int ival;	// INUM
-		float rval;	// RNUM
-		int oval;	// OP
-		ident_n *ident;	// IDENT
+		int ival;			// INUM
+		float rval;			// RNUM
+		int oval;			// OP
+		char *woval;			// WORD OP
+		ident_n *ident;			// IDENT
 	} attr;
 	struct comp_n *left, *right;		// left and right children
 } comp_n;
