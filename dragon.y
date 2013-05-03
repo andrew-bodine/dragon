@@ -8,24 +8,35 @@
 #ifndef DRAGON_Y
 #define DRAGON_Y
 
+
 /* includes */
 #include <stdio.h>
 #include <stdlib.h>
 #include "syn_tree.h"
 #include "sym_table.h"
 
+
 /* pointers */
 s_table *s_stack = NULL;
 t_entry *e_ptr = NULL;
 n_ptr t_ptr;
 
+
 /* prototypes */
 int yylex( void );
 void yyerror( char *s );
 
+
 #endif /* dragon.y */
 
 %}
+
+
+%code requires {
+	#include "syn_tree.h"
+	#include "sym_table.h"
+}
+
 
 /* yylval union */
 %union {
@@ -35,6 +46,7 @@ void yyerror( char *s );
 	n_ptr tval;	/* syntax tree node */
 	r_ptr *record;	/* symbol table entry record */
 };
+
 
 /* tokens */
 %token _PROGRAM_ 	/* starts the main program */
@@ -81,14 +93,17 @@ void yyerror( char *s );
 %token <ival> _INUMBER_	/* matches unsigned integers */
 %token <rval> _RNUMBER_ /* matches floats */
 
+
 /* precedence */
 %nonassoc _IF_THEN_
 %nonassoc _ELSE_
+
 
 /* types */
 %type <tval> program identifier_list declarations compound_statement 
 %type <tval> optional_statements statement_list statement variable expression simple_expression term factor
 %type <record> type standard_type
+
 
 /* start */
 %start program
@@ -347,9 +362,11 @@ factor			: variable								{	$$.comp = $1.comp; }
 			
 %%
 
+
 void yyerror( char *s ) {
 	fprintf( stderr, "%s\n", s );
 }
+
 int main( void ) {
 	s_stack = push_scope( s_stack );
 	yyparse( );

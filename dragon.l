@@ -8,20 +8,25 @@
 #ifndef DRAGON_L
 #define DRAGON_L
 
+
 /* includes */
 #include <stdlib.h>
 #include "syn_tree.h"
 #include "y.tab.h"
 
+
 /* prototypes */
 void yyerror( char *s );
+
 
 #endif /* dragon.l */
 
 %}
 
+
  /* options */
 %option nounput noinput
+
 
  /* regular definitions */
 ws		[ \t\n]
@@ -51,6 +56,7 @@ waddop		or
 mulop		[*|/]
 wmulop		div|mod|and
 assignop	:=
+
 
  /* states */
 %x bcomment pscomment
@@ -125,6 +131,7 @@ assignop	:=
 .			{ yyerror( "unrecognized character" ); }
 
 %%
+
 
 int yywrap( ) {
 	return 1;

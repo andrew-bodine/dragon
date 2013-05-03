@@ -28,7 +28,7 @@ typedef union {					/* plugs into yylval union for tree construction in yacc fil
 #include <stdio.h>
 #include <assert.h>
 #include "sym_table.h"
-
+#include "y.tab.h"
 
 /**********************/
 /* enums */

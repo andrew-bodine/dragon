@@ -15,11 +15,13 @@ typedef struct r_ptr r_ptr;
 typedef struct t_entry t_entry;
 typedef struct s_table s_table;
 
+
 /* includes */
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include "y.tab.h"
 
 
 /* constants */

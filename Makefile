@@ -14,10 +14,10 @@ LIFLAGS = -lfl
 all: $(OBJS)
 	$(CC) -o dragon $(OBJS) $(LIFLAGS)
 
-syn_tree.o: syn_tree.c syn_tree.h sym_table.h
+syn_tree.o: syn_tree.c syn_tree.h sym_table.h y.tab.h
 	$(CC) $(CFLAGS) syn_tree.c
 
-sym_table.o: sym_table.c sym_table.h
+sym_table.o: sym_table.c sym_table.h y.tab.h
 	$(CC) $(CFLAGS) sym_table.c
 
 y.tab.o: y.tab.c y.tab.h
