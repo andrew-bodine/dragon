@@ -6,8 +6,11 @@ program tree( input, output );
 	{var c,d: real;
 	var p: array[ 5 .. 13 ] of integer;}
 	
-	function gcd: integer;
-	begin
+	function gcd( z, v: integer; y, t: real ): integer;
+		function foobar( e, w: integer ): real;
+		begin
+		end;
+	begin	
 	end;
 begin
 	if a < 4 then 

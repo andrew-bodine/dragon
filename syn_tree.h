@@ -87,13 +87,15 @@ void free_comp( comp_n *ptr );						/* destructor: composition */
 
 void free_ident( ident_n *ptr );					/* destructor: ident(s) */
 
-void print_program( program_n *ptr );					/* print helper: program */
+void print_program( program_n *ptr, int spaces );			/* print helper: program */
 
 void print_statement( statement_n *ptr, int spaces );			/* print helper: statmenet */
 
 void print_comp( comp_n *ptr, int spaces );				/* print helper: composition */
 
 void print_ident( ident_n *ptr );					/* print helper: ident(s) */
+
+void print_spaces( int spaces );					/* print helper: pretty printing */
 
 
 #endif /* syn_tree.h */

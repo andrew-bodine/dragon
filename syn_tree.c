@@ -99,50 +99,55 @@ void free_ident( ident_n *ptr ) {
 	if( ptr != NULL )
 		free( ptr );	
 }
-void print_program( program_n *ptr ) {
+void print_program( program_n *ptr, int spaces ) {
 	
-	if( ptr->type == _PROGRAM_ ) {
-	
-		/* program: name */
-		fprintf( stderr, "\n" );
-		fprintf( stderr, "PROGRAM: \n" );
-		fprintf( stderr, "\tNAME: " );
-		print_ident( ptr->p_name );
+	/* program: name */
+	fprintf( stderr, "\n" );
+	print_spaces( spaces );
+	if( ptr->type == _PROGRAM_ ) fprintf( stderr, "PROGRAM: \n" );
+	else if( ptr->type == _FUNCTION_ ) fprintf( stderr, "FUNCTION: \n" );
+	print_spaces( spaces );
+	fprintf( stderr, "\tNAME: " );
+	print_ident( ptr->p_name );
 
-		/* program: input args */
-		fprintf( stderr, "\tARGS: " );
+	/* program: input args */
+	print_spaces( spaces );
+	fprintf( stderr, "\tARGS: " );
+	if( ptr->p_ilist == NULL )
+		fprintf( stderr, "NONE\n" );
+	else
 		print_ident( ptr->p_ilist );
 
-		/* program: declarations */
-		fprintf( stderr, "\tDECS: " );
-		if( ptr->p_declarations == NULL )
-			fprintf( stderr, "NONE\n" );
-		else
-			print_ident( ptr->p_declarations );
+	/* program: declarations */
+	print_spaces( spaces );
+	fprintf( stderr, "\tDECS: " );
+	if( ptr->p_declarations == NULL )
+		fprintf( stderr, "NONE\n" );
+	else
+		print_ident( ptr->p_declarations );
 
-		/* program: sub programs */
-		fprintf( stderr, "\tSPGS: " );
-		if( ptr->p_sprograms == NULL )
-			fprintf( stderr, "NONE\n" );
-		else {
-			fprintf( stderr, "\n" );
-			// TODO	
-		}
-
-		/* program: statements */
-		fprintf( stderr, "\tSTTS: " );
-		if( ptr->p_statements == NULL )
-			fprintf( stderr, "NONE\n" );
-		else {
-			fprintf( stderr, "\n" );
-			print_statement( ptr->p_statements, 16 );
-		}
-
+	/* program: sub programs */
+	print_spaces( spaces );
+	fprintf( stderr, "\tSPGS: " );
+	if( ptr->p_sprograms == NULL )
+		fprintf( stderr, "NONE\n" );
+	else {
 		fprintf( stderr, "\n" );
+		print_program( ptr->p_sprograms, spaces + 16 );
 	}
-	else if( ptr->type == _FUNCTION_ ) {
-		fprintf( stderr, "FUNCTIONS :)" );
+
+	/* program: statements */
+	print_spaces( spaces );
+	fprintf( stderr, "\tSTTS: " );
+	if( ptr->p_statements == NULL )
+		fprintf( stderr, "NONE\n" );
+	else {
+		fprintf( stderr, "\n" );
+		print_spaces( spaces );
+		print_statement( ptr->p_statements, 16 );
 	}
+
+	fprintf( stderr, "\n" );
 }
 void print_statement( statement_n *ptr, int spaces ) {
 	while( ptr != NULL ) {
@@ -214,4 +219,10 @@ void print_ident( ident_n *ptr ) {
 		ptr = ptr->n_ident;
 	}
 	fprintf( stderr, "\n" );
+}
+void print_spaces( int spaces ) {
+	int i;
+	
+	for( i = 0; i < spaces; i++ )
+		fprintf( stderr, " " );
 }

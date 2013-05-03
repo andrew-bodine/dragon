@@ -132,7 +132,7 @@ program			: _PROGRAM_ _IDENT_ '(' identifier_list ')' ';'
 													t_ptr.program->p_statements = $9.statement;
 												}			  
 			  '.'									{	
-													print_program( t_ptr.program );
+													print_program( t_ptr.program, 0 );
 													print_sstack( s_stack );
 													free_program( t_ptr.program );
 												}
@@ -233,7 +233,7 @@ parameter_list		: identifier_list ':' type						{
 													while( 1 ) {
 														
 														/* free temporary record installed previously */
-														free_record( t_ptr.ident->e_ptr->e_record );
+														//free_record( t_ptr.ident->e_ptr->e_record );
 														
 														install_entry_record( t_ptr.ident->e_ptr, $3 );
 														if( t_ptr.ident->n_ident != NULL )
