@@ -30,14 +30,6 @@ typedef union {					/* plugs into yylval union for tree construction in yacc fil
 #include "sym_table.h"
 #include "y.tab.h"
 
-/**********************/
-///* enums */
-//typedef enum {
-//	inum, rnum, assignop, ident, addop, waddop, mulop, wmulop, relop,
-//	statement, ifs, thens, elses
-//} c_type;
-/**********************/
-
 
 /* struct definitions */
 typedef struct ident_n {			/* tree node: ident */

@@ -171,6 +171,15 @@ void print_comp( comp_n *ptr, int spaces ) {
 		case _IDENT_:
 			fprintf( stderr, "[IDENT:%s|%d|%d|%d]", ptr->attr.ident->e_ptr->e_symbol, ptr->index, ptr->l_not, ptr->u_minus );
 			break;
+		case _IF_:
+			fprintf( stderr, "[IF]" );
+			break;
+		case _THEN_:
+			fprintf( stderr, "[THEN]" );
+			break;
+		case _ELSE_:
+			fprintf( stderr, "[ELSE]" );
+			break;
 		default:
 			fprintf( stderr, "[UNKNOWN]" );
 			break;

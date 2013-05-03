@@ -237,9 +237,15 @@ statement		: variable _ASSIGNOP_ expression					{	$$.comp = make_comp( _ASSIGNOP
 													$$.comp->attr.statement = $1.statement;
 												}
 
-			| _IF_ expression _THEN_ statement %prec _IF_THEN_			{}
+			| _IF_ expression _THEN_ statement %prec _IF_THEN_			{
+													$$.comp = make_comp( _IF_, $2.comp,
+														make_comp( _THEN_, $4.comp , NULL ) );
+												}
 
-			| _IF_ expression _THEN_ statement _ELSE_ statement			{}
+			| _IF_ expression _THEN_ statement _ELSE_ statement			{	$$.comp = make_comp( _IF_, $2.comp,
+														make_comp( _THEN_, $4.comp,
+														make_comp( _ELSE_, $6.comp, NULL ) ) );
+												}
 
 			| _WHILE_ expression _DO_ statement					{}
 			;
