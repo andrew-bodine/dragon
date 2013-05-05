@@ -9,6 +9,7 @@ program tree( input, output );
 	function gcd( z, v: integer; y, t: real ): integer;
 		function foobar( e, w: integer ): real;
 		begin
+			while a do b := 3
 		end;
 	begin	
 	end;

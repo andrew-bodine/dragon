@@ -91,6 +91,19 @@ r_ptr *make_function_record( int r_type, ident_n *a_ptr ) {
 	
 	return ptr;
 }
+r_ptr *make_procedure_record( ident_n *a_ptr ) {
+	r_ptr *ptr;
+	
+	ptr = ( r_ptr * )malloc( sizeof( r_ptr ) );
+	assert( ptr != NULL );
+	ptr->e_rtype = _PROCEDURE_;
+	
+	ptr->record.p_info = ( p_rinfo * )malloc( sizeof( p_rinfo ) );
+	assert( ptr->record.p_info != NULL );
+	ptr->record.p_info->a_ptr = a_ptr;
+	
+	return ptr;
+}
 void free_record( r_ptr *ptr ) {
 	if( ptr == NULL ) return;
 	switch( ptr->e_rtype ) {

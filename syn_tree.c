@@ -50,6 +50,7 @@ comp_n *make_comp( int type, comp_n *left, comp_n *right ) {
 	ptr->index = -1;
 	ptr->l_not = 0;
 	ptr->u_minus = 0;
+	ptr->call = 0;
 	ptr->left = left;
 	ptr->right = right;
 	
@@ -106,6 +107,7 @@ void print_program( program_n *ptr, int spaces ) {
 	print_spaces( spaces );
 	if( ptr->type == _PROGRAM_ ) fprintf( stderr, "PROGRAM: \n" );
 	else if( ptr->type == _FUNCTION_ ) fprintf( stderr, "FUNCTION: \n" );
+	else if( ptr->type == _PROCEDURE_ ) fprintf( stderr, "PROCEDURE:\n" );
 	print_spaces( spaces );
 	fprintf( stderr, "\tNAME: " );
 	print_ident( ptr->p_name );
@@ -133,7 +135,7 @@ void print_program( program_n *ptr, int spaces ) {
 		fprintf( stderr, "NONE\n" );
 	else {
 		fprintf( stderr, "\n" );
-		print_program( ptr->p_sprograms, spaces + 16 );
+		print_program( ptr->p_sprograms, spaces+16 );
 	}
 
 	/* program: statements */
@@ -144,7 +146,7 @@ void print_program( program_n *ptr, int spaces ) {
 	else {
 		fprintf( stderr, "\n" );
 		print_spaces( spaces );
-		print_statement( ptr->p_statements, 16 );
+		print_statement( ptr->p_statements, spaces+16 );
 	}
 
 	fprintf( stderr, "\n" );
@@ -166,7 +168,7 @@ void print_comp( comp_n *ptr, int spaces ) {
 	switch( ptr->type ) {
 		case _STATEMENT_:
 			fprintf( stderr, "\n" );
-			print_statement( ptr->attr.statement, spaces + 16 );
+			print_statement( ptr->attr.statement, spaces+16 );
 			break;
 		case _ASSIGNOP_:
 			fprintf( stderr, "[ASSIGNOP]" );
@@ -203,6 +205,12 @@ void print_comp( comp_n *ptr, int spaces ) {
 			break;
 		case _ELSE_:
 			fprintf( stderr, "[ELSE]" );
+			break;
+		case _WHILE_:
+			fprintf( stderr, "[WHILE]" );
+			break;
+		case _DO_:
+			fprintf( stderr, "[DO]" );
 			break;
 		default:
 			fprintf( stderr, "[UNKNOWN]" );

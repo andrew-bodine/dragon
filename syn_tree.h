@@ -8,6 +8,7 @@
 
 
 /* struct declarations */
+
 typedef struct ident_n ident_n;
 typedef struct comp_n comp_n;
 typedef struct statement_n statement_n;
@@ -32,16 +33,17 @@ typedef union {					/* plugs into yylval union for tree construction in yacc fil
 
 
 /* struct definitions */
-typedef struct ident_n {			/* tree node: ident */
+typedef struct ident_n {				/* tree node: ident */
 	t_entry *e_ptr;				// symbol table entry
 	struct ident_n *n_ident;		// next ident node
 } ident_n;
 
-typedef struct comp_n {				/* tree node: statement composition */
+typedef struct comp_n {					/* tree node: statement composition */
 	int type;				// type of composition node, indicates what union ptr to use
 	int index;				// used for arrays ( INIT: -1 )
 	int l_not;				// logical not ( INIT 0: false, 1: true )
 	int u_minus;				// unary minus ( INIT 0: false, 1: true )
+	int call;				// procedure | function call ( INIT 0: false, 1: true )
 	union {
 		int ival;			// INUM
 		float rval;			// RNUM
@@ -53,13 +55,12 @@ typedef struct comp_n {				/* tree node: statement composition */
 	struct comp_n *left, *right;		// left and right children
 } comp_n;
 
-typedef struct statement_n {			/* tree node: statement */
+typedef struct statement_n {				/* tree node: statement */
 	comp_n *root;				// root ptr to compositions
-	// TODO
 	struct statement_n *n_statement;	// mext statement node
 } statement_n;
 
-typedef struct program_n {			/* tree node: program */
+typedef struct program_n {				/* tree node: program */
 	int type;				// program | function | procedure
 	ident_n *p_name;			// program name
 	ident_n *p_ilist;			// input arguments

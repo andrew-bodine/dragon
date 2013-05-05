@@ -202,9 +202,11 @@ subprogram_declaration	: subprogram_head
 			  subprogram_declarations
 			  compound_statement							{	
 			  										$$.program = $1.program;
-			  										$$.program->p_declarations = $2.ident;
-			  										$$.program->p_sprograms = $3.program;
-			  										$$.program->p_statements = $4.statement;
+			  										if( $$.program != NULL ) {
+			  											$$.program->p_declarations = $2.ident;
+			  											$$.program->p_sprograms = $3.program;
+			  											$$.program->p_statements = $4.statement;
+			  										}
 			  									}
 			;
 
@@ -219,7 +221,16 @@ subprogram_head		: _FUNCTION_ _IDENT_ arguments ':' standard_type ';'			{
 													$$.program = make_program( _FUNCTION_, make_ident( e_ptr, NULL ), $3.ident );
 												}
 
-			| _PROCEDURE_ _IDENT_ arguments ';'					{}
+			| _PROCEDURE_ _IDENT_ arguments ';'					{
+													$$.program = NULL;
+/*													e_ptr = find_entry( s_stack, $2 );*/
+/*													if( e_ptr != NULL ) {*/
+/*														fprintf( stderr, "ERROR: declaring a procedure with previously declared symbol\n" );*/
+/*													}*/
+/*													e_ptr = insert_entry( s_stack, $2 );*/
+/*													install_entry_record( e_ptr, make_procedure_record( $3.ident ) );*/
+/*													$$.program = make_program( _PROCEDURE_, make_ident( e_ptr, NULL ), $3.ident );*/
+												}
 			;
 
 arguments		: '(' parameter_list ')'						{	$$.ident = $2.ident; }
@@ -293,7 +304,8 @@ statement		: variable _ASSIGNOP_ expression					{	$$.comp = make_comp( _ASSIGNOP
 														make_comp( _ELSE_, $6.comp, NULL ) ) );
 												}
 
-			| _WHILE_ expression _DO_ statement					{}
+			| _WHILE_ expression _DO_ statement					{	$$.comp = make_comp( _WHILE_, $2.comp,
+														make_comp( _DO_, $4.comp, NULL ) ); }
 			;
 
 variable		: _IDENT_								{	
@@ -349,7 +361,7 @@ procedure_statement	: _IDENT_								{}
 
 expression_list		: expression								{}
 
-			| expression_list ',' expression					{}
+			| expression ',' expression_list					{}
 			;
 
 expression		: simple_expression							{	$$.comp = $1.comp; }
